@@ -4,3 +4,9 @@
 # React Router
 /.react-router/
 /build/
+
+# Server
+/server/node_modules/
+/server/dist/
+/server/uploads/
+/server/.env
