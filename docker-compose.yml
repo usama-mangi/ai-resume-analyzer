@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: resume_analyzer
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/resume_analyzer
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      BETTER_AUTH_SERVER_URL: ${BETTER_AUTH_SERVER_URL:-http://localhost:3000/api/auth}
+      BETTER_AUTH_CLIENT_URL: ${BETTER_AUTH_CLIENT_URL:-http://localhost:5173}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.llm7.io/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-default}
+      UPLOAD_DIR: ./uploads
+      # Job Board Aggregation (JSearch API via RapidAPI)
+      JSEARCH_API_KEY: ${JSEARCH_API_KEY}
+      JSEARCH_API_HOST: ${JSEARCH_API_HOST:-jsearch.p.rapidapi.com}
+      # Redis
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
