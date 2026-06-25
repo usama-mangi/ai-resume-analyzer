@@ -9,11 +9,14 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { usePuterStore } from "./lib/puter";
-import { useEffect } from "react";
+import { ThemeProvider } from "./lib/theme-store";
+import { ToastProvider } from "~/components/ui/Toast";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.googleapis.com",
+  },
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
@@ -22,16 +25,11 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    crossOrigin: "anonymous",
   },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { init } = usePuterStore();
-
-  useEffect(() => {
-    init();
-  }, [init]);
-
   return (
     <html lang="en">
       <head>
@@ -41,9 +39,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <script src="https://js.puter.com/v2/"></script>
-
-        {children}
+        <ThemeProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -72,14 +70,16 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">{message}</h1>
+        <p className="text-gray-500 mb-6">{details}</p>
+        {stack && (
+          <pre className="w-full p-4 overflow-x-auto text-left text-xs bg-gray-50 rounded-lg">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </div>
     </main>
   );
 }
