@@ -1,0 +1,59 @@
+import { type InputHTMLAttributes, forwardRef } from "react";
+import { Label } from "./Label";
+import { cn } from "~/lib/utils";
+
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  error?: string;
+  label?: string;
+  hint?: string;
+}
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, error, label, hint, id, type = "text", ...props }, ref) => {
+    const inputId = id || props.name;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const hintId = hint ? `${inputId}-hint` : undefined;
+
+    return (
+      <div className="w-full">
+        {label && (
+          <Label htmlFor={inputId} required={props.required}>
+            {label}
+          </Label>
+        )}
+        <input
+          ref={ref}
+          id={inputId}
+          type={type}
+          className={cn(
+            "w-full px-3.5 py-2 rounded-lg text-sm text-gray-900 bg-white border transition-all duration-150",
+            "placeholder:text-gray-400",
+            "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
+            "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
+            error
+              ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500/20"
+              : "border-gray-200 hover:border-gray-300",
+            className,
+          )}
+          aria-invalid={error ? "true" : "false"}
+          aria-describedby={cn(errorId, hintId)}
+          {...props}
+        />
+        {error && (
+          <p id={errorId} className="mt-1.5 text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+        {hint && !error && (
+          <p id={hintId} className="mt-1.5 text-sm text-gray-400">
+            {hint}
+          </p>
+        )}
+      </div>
+    );
+  },
+);
+
+Input.displayName = "Input";
+
+export default Input;
