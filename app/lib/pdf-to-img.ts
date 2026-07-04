@@ -4,17 +4,32 @@ export interface PdfConversionResult {
   error?: string;
 }
 
-let pdfjsLib: any = null;
-let isLoading = false;
-let loadPromise: Promise<any> | null = null;
+// Type definitions for pdfjs-dist (lazy-loaded)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PDFJSStatic = any;
 
-async function loadPdfJs(): Promise<any> {
+interface PDFDocumentProxy {
+  numPages: number;
+  getPage: (pageNumber: number) => Promise<PDFPageProxy>;
+}
+
+interface PDFPageProxy {
+  getViewport: (params: { scale: number }) => { width: number; height: number };
+  render: (params: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => {
+    promise: Promise<void>;
+  };
+}
+
+let pdfjsLib: PDFJSStatic | null = null;
+let isLoading = false;
+let loadPromise: Promise<PDFJSStatic> | null = null;
+
+async function loadPdfJs(): Promise<PDFJSStatic> {
   if (pdfjsLib) return pdfjsLib;
   if (loadPromise) return loadPromise;
 
   isLoading = true;
-  // @ts-expect-error - pdfjs-dist/build/pdf.mjs is not a module
-  loadPromise = import("pdfjs-dist/build/pdf.mjs").then((lib) => {
+  loadPromise = import("pdfjs-dist/legacy/build/pdf.mjs").then((lib) => {
     // Set the worker source to use local file
     lib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
     pdfjsLib = lib;
@@ -79,7 +94,7 @@ export async function convertPdfToImage(
     return {
       imageUrl: "",
       file: null,
-      error: `Failed to convert PDF: ${err}`,
+      error: `Failed to convert PDF: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
 }
