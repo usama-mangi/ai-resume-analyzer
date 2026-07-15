@@ -1,0 +1,18 @@
+-- AlterTable
+ALTER TABLE "Job" ADD COLUMN     "aiMlInvolved" BOOLEAN,
+ADD COLUMN     "benefitsExtended" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN     "contractDuration" TEXT,
+ADD COLUMN     "educationRequired" TEXT,
+ADD COLUMN     "hasManagementResponsibilities" BOOLEAN,
+ADD COLUMN     "industry" TEXT,
+ADD COLUMN     "jobFunction" TEXT,
+ADD COLUMN     "preferredTechnologies" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN     "relocationAssistance" BOOLEAN,
+ADD COLUMN     "relocationRequired" BOOLEAN,
+ADD COLUMN     "requiredExperienceYears" INTEGER,
+ADD COLUMN     "requiredTechnologies" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN     "seniorityLevel" TEXT,
+ADD COLUMN     "softSkills" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN     "startDate" TEXT,
+ADD COLUMN     "visaSponsorship" BOOLEAN,
+ADD COLUMN     "workArrangement" TEXT;
