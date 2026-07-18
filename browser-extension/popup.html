@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Resume Analyzer - Autofill</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      </div>
+      <div class="header-content">
+        <h1>AI Resume Analyzer</h1>
+        <p>One-Click Autofill</p>
+      </div>
+    </header>
+
+    <!-- Auth State: Not Signed In -->
+    <section id="auth-section" class="auth-section">
+      <div class="auth-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+      </div>
+      <h2>Sign In to Your Account</h2>
+      <p>Connect to sync your profile and auto-fill job applications</p>
+      
+      <div id="email-login" class="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email" spellcheck="false">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button id="login-btn" class="btn btn-primary btn-block" disabled>
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loading hidden">
+            <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+            </svg>
+            Signing in...
+          </span>
+        </button>
+        <div id="login-error" class="error-message hidden"></div>
+      </div>
+
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+
+      <button id="clerk-btn" class="btn btn-secondary btn-block" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.374 0 0 5.373 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12C24 5.373 18.627 0 12 0zm5.521 17.34c-.12.12-.18.24-.18.42 0 .238.12.42.3.541.72.42 1.2 1.198 1.2 2.158 0 .898-.36 1.558-.96 1.978-.238.18-.538.18-.838 0-.6-.42-1.02-1.078-1.02-1.978 0-.78.36-1.44 1.02-1.918.3-.3.6-.42.838-.42.66 0 1.201.48 1.201 1.498 0 .601-.18 1.141-.601 1.501-.42.36-1.08.36-1.621.18-1.38-.3-2.101-1.38-2.101-2.638 0-1.559 1.08-2.7 2.401-3.238.18-.06.24-.24.18-.36-.12-.24-.6-.3-1.14-.3-.599 0-1.02.36-1.02 1.079 0 .66.36 1.2 1.02 1.62 1.559 1.139 2.16 2.759 2.16 4.138zm-8.582-5.938c0-.66.36-1.14 1.02-1.379.6-.179 1.2-.3 1.98-.3.78 0 1.32.12 1.799.359.599.299 1.139.659 1.5.1.48-.48.66-1.2.66-1.799 0-.659-.42-1.199-1.079-1.44-.539-.18-1.2-.12-1.98.12-.78.24-1.26.779-1.26 1.62v.12c0 1.08.9 1.74 2.1 1.74.719 0 1.379-.179 1.979-.479l.18.18c-.6.36-1.32.48-2.1.48-1.619 0-2.699-1.379-2.699-3.299zm2.82-3.42c.659 0 1.139-.42 1.139-1.079 0-.6-.48-1.079-1.139-1.079-.66 0-1.14.479-1.14 1.079 0 .599.48 1.079 1.14 1.079z"/>
+        </svg>
+        <span>Continue with Clerk</span>
+      </button>
+    </section>
+
+    <!-- Auth State: Signed In -->
+    <section id="profile-section" class="profile-section hidden">
+      <div class="user-info-bar">
+        <div class="user-avatar" id="avatar">U</div>
+        <div class="user-details">
+          <div class="user-name" id="user-name">User Name</div>
+          <div class="user-email" id="user-email">user@example.com</div>
+        </div>
+        <button id="logout-btn" class="btn btn-ghost btn-sm" title="Sign out">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">Your Profile</h3>
+        </div>
+        <div class="section-content">
+          <div class="profile-grid">
+            <div class="profile-item full-width">
+              <div class="profile-label">Headline</div>
+              <div class="profile-value" id="profile-headline"><span class="empty">Not set</span></div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Location</div>
+              <div class="profile-value" id="profile-location"><span class="empty">Not set</span></div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Current Role</div>
+              <div class="profile-value" id="profile-role"><span class="empty">Not set</span></div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Experience</div>
+              <div class="profile-value" id="experience-count">0 entries</div>
+            </div>
+            <div class="profile-item full-width">
+              <div class="profile-label">Skills</div>
+              <div class="skill-tags" id="skill-tags"><span class="empty">No skills added</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">Actions</h3>
+        </div>
+        <div class="section-content">
+          <div class="form-status detecting" id="form-status">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+            <span>Detecting form...</span>
+          </div>
+          
+          <div class="form-info" id="form-info" style="display: none;">
+            <div class="form-info-item">
+              <div class="form-info-label">Platform</div>
+              <div class="form-info-value" id="detected-platform">Unknown</div>
+            </div>
+            <div class="form-info-item">
+              <div class="form-info-label">Fields Found</div>
+              <div class="form-info-value" id="detected-fields">0</div>
+            </div>
+          </div>
+
+          <div class="fields-list" id="fields-list" style="display: none;">
+            <h4 style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Detected Fields</h4>
+            <div id="fields-container"></div>
+          </div>
+
+          <div class="actions">
+            <button id="sync-btn" class="btn btn-secondary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Sync Profile
+            </button>
+            <button id="autofill-btn" class="btn btn-primary btn-sm" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="M8 10h12"></path>
+                <path d="M8 14h8"></path>
+                <path d="M10 18h4"></path>
+              </svg>
+              Auto-fill Form
+            </button>
+          </div>
+
+          <div id="autofill-result" class="autofill-result hidden">
+            <div class="result-header">
+              <span id="result-success" class="result-success"></span>
+            </div>
+            <div class="result-stats">
+              <span>Filled: <strong id="result-filled">0</strong> / <strong id="result-total">0</strong></span>
+            </div>
+            <div class="result-section">
+              <strong>Errors:</strong>
+              <ul id="result-errors" class="result-list"></ul>
+            </div>
+            <div class="result-section">
+              <strong>Skipped:</strong>
+              <ul id="result-skipped" class="result-list"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings-section" class="section settings-section">
+      <div class="section-header">
+        <h3 class="section-title">Settings</h3>
+      </div>
+      <div class="section-content">
+        <details>
+          <summary style="cursor: pointer; font-weight: 500; color: var(--text);">Extension Settings</summary>
+          <div class="settings-grid" style="margin-top: 12px;">
+            <label class="setting-label">
+              <input type="checkbox" id="auto-fill-enabled">
+              <span>Auto-fill enabled</span>
+            </label>
+            <label class="setting-label">
+              <input type="checkbox" id="confirm-before-fill" checked>
+              <span>Confirm before filling</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="fill-delay" class="setting-label">Fill delay (ms)</label>
+            <input type="range" id="fill-delay" min="0" max="1000" step="50" value="100">
+            <span class="range-display" id="fill-delay-value">100ms</span>
+          </div>
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="api-base-url" class="setting-label">API Base URL</label>
+            <input type="url" id="api-base-url" class="setting-input" placeholder="http://localhost:3000">
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <span>v1.0.0</span>
+      <div style="display: flex; gap: 12px;">
+        <a href="#" id="docs-link" class="footer-link" target="_blank">Docs</a>
+        <a href="#" id="support-link" class="footer-link" target="_blank">Support</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
