@@ -363,7 +363,7 @@ export default function Resume() {
           </div>
 
           <Link
-            to={`/resume/${id}/edit`}
+            to={`/resumes/${id}/edit`}
             className="primary-button text-white rounded-full px-4 py-2 text-sm cursor-pointer font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
           >
             {EDIT_ICON}
@@ -371,7 +371,7 @@ export default function Resume() {
           </Link>
 
           <Link
-            to={`/tailored-resume/${id}`}
+            to={`/resumes/${id}/tailored`}
             className="primary-button text-white rounded-full px-4 py-2 text-sm cursor-pointer font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
           >
             {TAILOR_ICON}
@@ -525,11 +525,11 @@ export default function Resume() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <Link to={`/resume/${id}/edit`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              <Link to={`/resumes/${id}/edit`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 Edit Resume
               </Link>
-              <Link to={`/tailored-resume/${id}`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              <Link to={`/resumes/${id}/tailored`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 Tailor for Job
               </Link>

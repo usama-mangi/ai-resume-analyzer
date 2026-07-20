@@ -194,7 +194,7 @@ export default function ResumeVersions() {
                   )}
                 </div>
                 <Link
-                  to={`/resume/${id}`}
+                  to={`/resumes/${id}`}
                   className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
                 >
                   <img src="/icons/back.svg" className="size-4" alt="" />
@@ -373,7 +373,7 @@ export default function ResumeVersions() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h3>
               <div className="grid sm:grid-cols-3 gap-4">
                 <Link
-                  to={`/tailored-resume/${id}`}
+                  to={`/resumes/${id}/tailored`}
                   className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center"
                 >
                   <img src="/icons/magic.svg" className="size-8 mx-auto text-blue-600 mb-2" alt="" />
