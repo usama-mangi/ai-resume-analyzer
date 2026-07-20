@@ -548,15 +548,15 @@ export default function Resume() {
 }
 
 function buildPdfDefinition(content: GeneratedResume, title: string, profile: UserProfile | null): any {
-  const name = content.basics?.name || profile?.name || title;
-  const headline = content.basics?.headline || profile?.headline || "";
-  const email = content.basics?.email || profile?.email || "";
-  const phone = content.basics?.phone || profile?.phone || "";
-  const location = content.basics?.location || profile?.location || "";
-  const linkedin = content.basics?.linkedin || profile?.linkedinUrl || "";
-  const github = content.basics?.github || profile?.githubUrl || "";
-  const website = content.basics?.website || profile?.websiteUrl || "";
-  const summary = content.basics?.summary || "";
+  const name = content.basics?.name || (content as any).name || profile?.name || title;
+  const headline = content.basics?.headline || (content as any).headline || profile?.headline || "";
+  const email = content.basics?.email || (content as any).email || profile?.email || "";
+  const phone = content.basics?.phone || (content as any).phone || profile?.phone || "";
+  const location = content.basics?.location || (content as any).location || profile?.location || "";
+  const linkedin = content.basics?.linkedin || (content as any).linkedin || profile?.linkedinUrl || "";
+  const github = content.basics?.github || (content as any).github || profile?.githubUrl || "";
+  const website = content.basics?.website || (content as any).website || profile?.websiteUrl || "";
+  const summary = content.basics?.summary || (content as any).summary || "";
   const experience = content.experience || [];
   const education = content.education || [];
   const skills = content.skills || [];

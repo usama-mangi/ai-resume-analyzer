@@ -36,14 +36,14 @@ function SectionHeading({ title }: { title: string }) {
 
 export function ResumePreview({ content, profile, resumeTitle, companyName, className }: ResumePreviewProps) {
   const basics = content.basics || {};
-  const name = basics.name || profile?.name || "";
-  const headline = basics.headline || profile?.headline || resumeTitle;
-  const email = basics.email || profile?.email || "";
-  const phone = basics.phone || profile?.phone || "";
-  const location = basics.location || profile?.location || "";
-  const linkedin = basics.linkedin || profile?.linkedinUrl || "";
-  const github = basics.github || profile?.githubUrl || "";
-  const website = basics.website || profile?.websiteUrl || "";
+  const name = basics.name || (content as any).name || profile?.name || "";
+  const headline = basics.headline || (content as any).headline || profile?.headline || resumeTitle;
+  const email = basics.email || (content as any).email || profile?.email || "";
+  const phone = basics.phone || (content as any).phone || profile?.phone || "";
+  const location = basics.location || (content as any).location || profile?.location || "";
+  const linkedin = basics.linkedin || (content as any).linkedin || profile?.linkedinUrl || "";
+  const github = basics.github || (content as any).github || profile?.githubUrl || "";
+  const website = basics.website || (content as any).website || profile?.websiteUrl || "";
   // Summary: check basics first, then top-level (AI generates at top-level)
   const summary = basics.summary || (content as any).summary || "";
 
