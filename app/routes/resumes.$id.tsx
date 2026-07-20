@@ -412,16 +412,6 @@ export default function Resume() {
                 <CategoryScore label="Keywords" score={feedback.keywordMatchScore ?? 0} showBar={false} />
                 <CategoryScore label="Format" score={feedback.formatScore ?? 0} showBar={false} />
               </div>
-              <Link
-                to="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('ats-details')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="mt-4 block text-xs text-primary-600 hover:text-primary-700 font-medium"
-              >
-                View details ↓
-              </Link>
             </div>
           )}
 
@@ -823,18 +813,15 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
         margin: [0, 4, 0, 2],
       });
 
-      const details: any[] = [];
-      if (edu.gpa) details.push({ text: `GPA: ${edu.gpa}`, fontSize: BODY, font: F, color: C600 });
+      // Match ResumePreview: stack details vertically (each on own line)
+      if (edu.gpa) {
+        body.push({ text: `GPA: ${edu.gpa}`, fontSize: BODY, font: F, color: C600, margin: [8, 0, 0, 1] });
+      }
       if (edu.honors?.length) {
-        if (details.length) details.push({ text: "  |  ", fontSize: BODY, font: F, color: C600 });
-        details.push({ text: `Honors: ${edu.honors.join(", ")}`, fontSize: BODY, font: F, color: C600 });
+        body.push({ text: `Honors: ${edu.honors.join(", ")}`, fontSize: BODY, font: F, color: C600, margin: [8, 0, 0, 1] });
       }
       if (edu.coursework?.length) {
-        if (details.length) details.push({ text: "  |  ", fontSize: BODY, font: F, color: C600 });
-        details.push({ text: `Relevant Coursework: ${edu.coursework.join(", ")}`, fontSize: BODY, font: F, color: C600 });
-      }
-      if (details.length) {
-        body.push({ text: details, margin: [8, 0, 0, 2] });
+        body.push({ text: `Relevant Coursework: ${edu.coursework.join(", ")}`, fontSize: BODY, font: F, color: C600, margin: [8, 0, 0, 1] });
       }
     }
   }
@@ -842,22 +829,34 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
   // ── Skills ──
   if (skills.length) {
     body.push(section("Skills"));
-    const categorized: Record<string, string[]> = {};
-    for (const s of skills) {
-      const n = typeof s === "string" ? s : s.name;
-      if (!n) continue;
-      const cat = (typeof s === "object" && s.category) || "Technical Skills";
-      if (!categorized[cat]) categorized[cat] = [];
-      categorized[cat].push(n);
-    }
-    for (const [cat, names] of Object.entries(categorized)) {
+    // Match ResumePreview: flat comma-separated list for string[], categorized for ResumeSkill[]
+    if (skills.length > 0 && typeof skills[0] === "string") {
       body.push({
-        text: [
-          { text: `${cat}: `, bold: true, fontSize: BODY, font: F, color: C800 },
-          { text: names.join(", "), fontSize: BODY, font: F, color: C800 },
-        ],
-        margin: [0, 0, 0, 2],
+        text: skills.join(", "),
+        fontSize: BODY,
+        font: F,
+        lineHeight: 1.6,
+        color: C800,
+        margin: [0, 0, 0, 4],
       });
+    } else {
+      const categorized: Record<string, string[]> = {};
+      for (const s of skills) {
+        const n = typeof s === "string" ? s : s.name;
+        if (!n) continue;
+        const cat = (typeof s === "object" && s.category) || "Technical Skills";
+        if (!categorized[cat]) categorized[cat] = [];
+        categorized[cat].push(n);
+      }
+      for (const [cat, names] of Object.entries(categorized)) {
+        body.push({
+          text: [
+            { text: `${cat}: `, bold: true, fontSize: BODY, font: F, color: C800 },
+            { text: names.join(", "), fontSize: BODY, font: F, color: C800 },
+          ],
+          margin: [0, 0, 0, 2],
+        });
+      }
     }
   }
 
