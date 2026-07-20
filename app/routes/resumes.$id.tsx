@@ -472,13 +472,13 @@ export default function Resume() {
           )}
 
           {/* Shared Feedback */}
-          {resume.sharedFeedbacks && (resume.sharedFeedbacks as any[]).length > 0 && (
+          {(resume.sharedFeedbacks ?? []).length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-                Feedback ({(resume.sharedFeedbacks as any[]).length})
+                Feedback ({(resume.sharedFeedbacks ?? []).length})
               </h3>
               <div className="space-y-2">
-                {(resume.sharedFeedbacks as SharedFeedback[]).slice(0, 5).map((fb) => (
+                {(resume.sharedFeedbacks ?? []).slice(0, 5).map((fb) => (
                   <button
                     key={fb.id}
                     type="button"
@@ -493,13 +493,13 @@ export default function Resume() {
                   </button>
                 ))}
               </div>
-              {(resume.sharedFeedbacks as any[]).length > 5 && (
+              {(resume.sharedFeedbacks ?? []).length > 5 && (
                 <button
                   type="button"
                   onClick={() => setShowAllFeedback(true)}
                   className="mt-3 w-full text-center text-xs text-primary-600 hover:text-primary-700 font-medium py-1"
                 >
-                  Show all {(resume.sharedFeedbacks as any[]).length} →
+                  Show all {(resume.sharedFeedbacks ?? []).length} →
                 </button>
               )}
             </div>
@@ -594,7 +594,7 @@ export default function Resume() {
       {/* All Feedback Modal */}
       <Modal isOpen={showAllFeedback} onClose={() => setShowAllFeedback(false)} title="All Feedback" size="md">
         <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-          {(resume.sharedFeedbacks as SharedFeedback[]).map((fb) => (
+          {(resume.sharedFeedbacks ?? []).map((fb) => (
             <button
               key={fb.id}
               type="button"
