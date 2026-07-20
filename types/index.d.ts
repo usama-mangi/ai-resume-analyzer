@@ -783,6 +783,14 @@ export interface ResumeTemplateSuggestionsResult {
 // Share Types
 // ============================================================================
 
+export interface SharedFeedback {
+  id: string;
+  name: string;
+  comment: string;
+  rating?: number | null;
+  createdAt: string;
+}
+
 export interface SharedReport {
   id: string;
   type: string;
@@ -798,6 +806,9 @@ export interface SharedReport {
   companyName?: string;
   imagePath?: string;
   feedback?: unknown;
+  generatedContent?: GeneratedResume;
+  textContent?: string;
+  sharedFeedbacks?: SharedFeedback[];
 }
 
 // ============================================================================

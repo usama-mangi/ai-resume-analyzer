@@ -968,8 +968,33 @@ export class ResumesService {
         format: true,
         imagePath: true,
         feedback: true,
+        generatedContent: true,
+        textContent: true,
+        sharedFeedbacks: true,
         createdAt: true,
       },
     });
+  }
+
+  async submitSharedFeedback(token: string, body: { name: string; comment: string; rating?: number }) {
+    const resume = await this.prisma.resume.findFirst({ where: { shareToken: token } });
+    if (!resume) throw new NotFoundException('Resume not found');
+
+    const existing = (resume.sharedFeedbacks as any[]) || [];
+    const feedback = {
+      id: crypto.randomUUID(),
+      name: body.name,
+      comment: body.comment,
+      rating: body.rating ?? null,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...existing, feedback];
+
+    await this.prisma.resume.update({
+      where: { id: resume.id },
+      data: { sharedFeedbacks: updated },
+    });
+
+    return feedback;
   }
 }

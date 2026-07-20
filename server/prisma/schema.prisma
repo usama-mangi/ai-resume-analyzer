@@ -133,6 +133,7 @@ model Resume {
   multiJdResult               Json?
   tailoredResumeResult        Json?
   tipFeedback                 Json?
+  sharedFeedbacks             Json?
   applicationStatus String  @default("not_applied")
   applicationNotes  String?
   shareToken      String?       @unique
