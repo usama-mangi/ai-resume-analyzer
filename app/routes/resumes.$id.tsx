@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { useSession } from "~/lib/auth-store";
 import { api, getUploadUrl } from "~/lib/api";
 import { normalizeFeedback } from "~/lib/utils";
+import { useResumeStore } from "~/lib/resume-store";
 import { PageShell, Button, useToastHelpers, CategoryScore, ScoreBadge } from "~/components/ui";
 import { ResumePreview } from "~/components/ResumePreview";
 import pdfMake from "pdfmake/build/pdfmake";
@@ -56,6 +57,7 @@ export default function Resume() {
   const navigate = useNavigate();
   const { success: toastSuccess } = useToastHelpers();
   const [isExporting, setIsExporting] = useState(false);
+  const storeVersion = useResumeStore((s) => s.resumes[id ?? ""]?.version ?? 0);
 
   useEffect(() => {
     if (!id) return;
@@ -183,7 +185,7 @@ export default function Resume() {
     };
 
     loadResume();
-  }, [id]);
+  }, [id, storeVersion]);
 
   const handleExportPDF = async () => {
     if (!displayContent) return;

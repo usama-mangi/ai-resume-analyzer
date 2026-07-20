@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { useSession } from "~/lib/auth-store";
 import { api } from "~/lib/api";
 import { cn } from "~/lib/utils";
+import { useResumeStore } from "~/lib/resume-store";
 import type { GeneratedResume } from "types";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, useToastHelpers } from "~/components/ui";
 
@@ -107,6 +108,7 @@ export default function ResumeEditPage() {
   const isAuthenticated = !!session;
   const navigate = useNavigate();
   const { success: toastSuccess, error: toastError } = useToastHelpers();
+  const updateResume = useResumeStore((s) => s.updateResume);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -240,13 +242,14 @@ export default function ResumeEditPage() {
         generatedContent: content,
         contactInfo: contact,
       } as any);
+      updateResume(id, content);
       toastSuccess("Resume updated", "Your changes have been saved");
       navigate(`/resumes/${id}`);
     } catch (err) {
       toastError("Save failed", err instanceof Error ? err.message : "Unknown error");
     }
     setSaving(false);
-  }, [id, content, contact]);
+  }, [id, content, contact, updateResume]);
 
   // Experience helpers
   const addExperience = () => {
