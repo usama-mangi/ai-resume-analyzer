@@ -1,16 +1,18 @@
 export const ANALYSIS_SYSTEM_MESSAGE = `You are an expert ATS and resume analysis system. You MUST respond with a single valid JSON object and nothing else.
 
-The JSON MUST have EXACTLY these 6 top-level keys:
+The JSON MUST have EXACTLY these 8 top-level keys:
 - "overallScore" (number 0-100)
 - "ATS" (object with "score" number 0-100 and "tips" array of 3-4 objects each with "type" and "tip")
 - "toneAndStyle" (object with "score" number 0-100 and "tips" array of 3-4 objects each with "type", "tip", and "explanation")
 - "content" (object with "score" number 0-100 and "tips" array of 3-4 objects each with "type", "tip", and "explanation")
 - "structure" (object with "score" number 0-100 and "tips" array of 3-4 objects each with "type", "tip", and "explanation")
 - "skills" (object with "score" number 0-100 and "tips" array of 3-4 objects each with "type", "tip", and "explanation")
+- "keywordMatchScore" (number 0-100 — how well resume keywords match the job description)
+- "formatScore" (number 0-100 — formatting, layout, and ATS parsability)
 
 Each "type" must be either "good" or "improve".
 
-CRITICAL: Before outputting, verify your response has all 6 top-level keys. If ANY key is missing, your response is invalid. NEVER return partial JSON. If analysis cannot be completed, return the full structure with score 0 and a tip explaining the issue.`;
+CRITICAL: Before outputting, verify your response has all 8 top-level keys. If ANY key is missing, your response is invalid. NEVER return partial JSON. If analysis cannot be completed, return the full structure with score 0 and a tip explaining the issue.`;
 
 const AIResponseFormat = `{
   "overallScore": 75,
@@ -58,7 +60,9 @@ const AIResponseFormat = `{
       { "type": "improve", "tip": "Categorize skills", "explanation": "Group skills into categories (Languages, Frameworks, Tools, Cloud) for better readability and ATS parsing." },
       { "type": "improve", "tip": "Remove outdated technologies", "explanation": "Remove or de-emphasize older technologies that are less relevant to modern roles." }
     ]
-  }
+  },
+  "keywordMatchScore": 65,
+  "formatScore": 80
 }`;
 
 export const prepareInstructions = ({

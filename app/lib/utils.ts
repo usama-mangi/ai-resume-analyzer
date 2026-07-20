@@ -50,6 +50,7 @@ export function normalizeFeedback(raw: unknown): Feedback {
 
   const getScore = (key: string): number => {
     const val = r[key];
+    if (typeof val === 'number') return val;
     if (val && typeof val === 'object' && 'score' in val) {
       const scoreVal = (val as Record<string, unknown>).score;
       return typeof scoreVal === 'number' ? scoreVal : 0;
@@ -69,7 +70,9 @@ export function normalizeFeedback(raw: unknown): Feedback {
   };
 
   return {
-    overallScore: getScore('overallScore') || 0,
+    overallScore: getScore('overallScore'),
+    keywordMatchScore: typeof r.keywordMatchScore === 'number' ? r.keywordMatchScore : undefined,
+    formatScore: typeof r.formatScore === 'number' ? r.formatScore : undefined,
     ATS: {
       score: getScore('ATS'),
       tips: getTips('ATS', true) as Feedback['ATS']['tips'],
