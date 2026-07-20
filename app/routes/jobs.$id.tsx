@@ -67,7 +67,7 @@ export default function JobDetailPage() {
       // Check if a tailored resume already exists for this resume and this specific job
       if (data.resumeId) {
         try {
-          const tailored = await (api.resumes as any).getTailoredResume(data.resumeId as string);
+          const tailored = await api.resumes.getTailoredResume(data.resumeId as string, id);
           setHasTailoredResume(!!tailored && !!tailored.tailoredResume);
         } catch {
           setHasTailoredResume(false);

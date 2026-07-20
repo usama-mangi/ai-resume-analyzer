@@ -108,8 +108,8 @@ export const api = {
     getTemplateSuggestions: (id: string) =>
       request<ResumeTemplateSuggestionsResult>(`/api/resumes/${id}/template-suggestions`),
 
-    getTailoredResume: (id: string) =>
-      request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume`),
+    getTailoredResume: (id: string, jobId?: string) =>
+      request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume${jobId ? `?jobId=${jobId}` : ''}`),
 
     generateTailoredResume: (id: string, body: ResumeTailorRequest) =>
       request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume`, {
