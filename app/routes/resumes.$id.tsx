@@ -693,7 +693,7 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
       vLineWidth: () => 0,
       paddingBottom: () => 3,
     },
-    margin: [0, 14, 0, 6],
+    margin: [0, 14, 0, 10],
   });
 
   const body: any[] = [];
