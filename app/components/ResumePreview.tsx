@@ -44,6 +44,8 @@ export function ResumePreview({ content, profile, resumeTitle, companyName, clas
   const linkedin = basics.linkedin || profile?.linkedinUrl || "";
   const github = basics.github || profile?.githubUrl || "";
   const website = basics.website || profile?.websiteUrl || "";
+  // Summary: check basics first, then top-level (AI generates at top-level)
+  const summary = basics.summary || (content as any).summary || "";
 
   const hasExperience = content.experience && content.experience.length > 0;
   const hasEducation = content.education && content.education.length > 0;
@@ -91,10 +93,10 @@ export function ResumePreview({ content, profile, resumeTitle, companyName, clas
       )}
 
       {/* Summary */}
-      {basics.summary && (
+      {summary && (
         <section className="mb-4">
           <SectionHeading title="Professional Summary" />
-          <p className="text-[11px] leading-[1.6] text-gray-800">{basics.summary}</p>
+          <p className="text-[11px] leading-[1.6] text-gray-800">{summary}</p>
         </section>
       )}
 
