@@ -232,6 +232,7 @@ export interface Resume {
   multiJdResult?: MultiJdResult;
   tailoredResumeResult?: TailoredResumeResult;
   tipFeedback?: Record<string, 'up' | 'down'>;
+  sharedFeedbacks?: SharedFeedback[];
   isPrimary?: boolean;
   shareToken?: string;
   applicationStatus?: string;

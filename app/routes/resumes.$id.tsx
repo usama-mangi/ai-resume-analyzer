@@ -4,7 +4,7 @@ import { useSession } from "~/lib/auth-store";
 import { api, getUploadUrl } from "~/lib/api";
 import { normalizeFeedback } from "~/lib/utils";
 import { useResumeStore } from "~/lib/resume-store";
-import { PageShell, Button, useToastHelpers, CategoryScore, ScoreBadge } from "~/components/ui";
+import { PageShell, Button, Modal, useToastHelpers, CategoryScore, ScoreBadge } from "~/components/ui";
 import { ResumePreview } from "~/components/ResumePreview";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfMakeVfsFonts from "pdfmake/build/vfs_fonts";
@@ -19,6 +19,7 @@ import type {
   Job,
   TailoredResumeResult,
   ResumeLanguage,
+  SharedFeedback,
 } from "types";
 
 export const meta = () => [
@@ -53,6 +54,8 @@ export default function Resume() {
   const [sharingLoading, setSharingLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [tipFeedback, setTipFeedback] = useState<Record<string, boolean>>({});
+  const [showAllFeedback, setShowAllFeedback] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState<SharedFeedback | null>(null);
 
   const navigate = useNavigate();
   const { success: toastSuccess } = useToastHelpers();
@@ -467,6 +470,40 @@ export default function Resume() {
               </Link>
             </div>
           )}
+
+          {/* Shared Feedback */}
+          {resume.sharedFeedbacks && (resume.sharedFeedbacks as any[]).length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                Feedback ({(resume.sharedFeedbacks as any[]).length})
+              </h3>
+              <div className="space-y-2">
+                {(resume.sharedFeedbacks as SharedFeedback[]).slice(0, 5).map((fb) => (
+                  <button
+                    key={fb.id}
+                    type="button"
+                    onClick={() => setSelectedFeedback(fb)}
+                    className="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 truncate">{fb.name}</span>
+                      {fb.rating && <span className="text-xs text-amber-500">{"★".repeat(fb.rating)}</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{fb.comment}</p>
+                  </button>
+                ))}
+              </div>
+              {(resume.sharedFeedbacks as any[]).length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllFeedback(true)}
+                  className="mt-3 w-full text-center text-xs text-primary-600 hover:text-primary-700 font-medium py-1"
+                >
+                  Show all {(resume.sharedFeedbacks as any[]).length} →
+                </button>
+              )}
+            </div>
+          )}
         </aside>
       </div>
 
@@ -553,6 +590,48 @@ export default function Resume() {
           )}
         </div>
       ) : null}
+
+      {/* All Feedback Modal */}
+      <Modal isOpen={showAllFeedback} onClose={() => setShowAllFeedback(false)} title="All Feedback" size="md">
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+          {(resume.sharedFeedbacks as SharedFeedback[]).map((fb) => (
+            <button
+              key={fb.id}
+              type="button"
+              onClick={() => { setShowAllFeedback(false); setSelectedFeedback(fb); }}
+              className="w-full text-left p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-gray-900">{fb.name}</span>
+                {fb.rating && <span className="text-xs text-amber-500">{"★".repeat(fb.rating)}{"☆".repeat(5 - fb.rating)}</span>}
+                <span className="text-xs text-gray-400 ml-auto">{new Date(fb.createdAt).toLocaleDateString()}</span>
+              </div>
+              <p className="text-sm text-gray-600 line-clamp-2">{fb.comment}</p>
+            </button>
+          ))}
+        </div>
+      </Modal>
+
+      {/* Single Feedback Modal */}
+      <Modal isOpen={!!selectedFeedback} onClose={() => setSelectedFeedback(null)} title="Feedback" size="md">
+        {selectedFeedback && (
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-sm">
+                {selectedFeedback.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">{selectedFeedback.name}</p>
+                <p className="text-xs text-gray-500">{new Date(selectedFeedback.createdAt).toLocaleDateString()}</p>
+              </div>
+              {selectedFeedback.rating && (
+                <span className="ml-auto text-amber-500 text-lg">{"★".repeat(selectedFeedback.rating)}{"☆".repeat(5 - selectedFeedback.rating)}</span>
+              )}
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedFeedback.comment}</p>
+          </div>
+        )}
+      </Modal>
     </PageShell>
   );
 }
