@@ -110,10 +110,10 @@ export default function Resume() {
                   ? tr.skills.map((s) => (typeof s === "string" ? { name: s } : s))
                   : tr.skills,
                 experience: Array.isArray(tr.experience)
-                  ? tr.experience.map((e) => ({ ...e, highlights: e.highlights || e.bullets || [] }))
+                  ? tr.experience.map((e) => ({ ...e, bullets: e.bullets || e.highlights || [] }))
                   : tr.experience,
                 projects: Array.isArray(tr.projects)
-                  ? tr.projects.map((p) => ({ ...p, highlights: p.highlights || p.bullets || [] }))
+                  ? tr.projects.map((p) => ({ ...p, bullets: p.bullets || p.highlights || [] }))
                   : tr.projects,
               };
               setGeneratedContent(normalized);
@@ -693,7 +693,7 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
         body.push({ text: exp.description, fontSize: BODY, font: F, lineHeight: 1.6, color: C800, margin: [0, 1, 0, 2] });
       }
 
-      const bullets = exp.highlights || exp.bullets || [];
+      const bullets = exp.bullets || exp.highlights || [];
       const validBullets = bullets.filter(Boolean);
       if (validBullets.length) {
         body.push({
@@ -794,7 +794,7 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
         body.push({ text: proj.description, fontSize: BODY, font: F, lineHeight: 1.6, color: C800, margin: [0, 1, 0, 2] });
       }
 
-      const projBullets = proj.highlights || proj.bullets || [];
+      const projBullets = proj.bullets || proj.highlights || [];
       const validBullets = projBullets.filter(Boolean);
       if (validBullets.length) {
         body.push({

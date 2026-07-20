@@ -123,7 +123,7 @@ export function ResumePreview({ content, profile, resumeTitle, companyName, clas
                 )}
 
                 {(() => {
-                  const bullets = exp.highlights || exp.bullets;
+                  const bullets = exp.bullets || exp.highlights;
                   if (!bullets || bullets.length === 0) return null;
                   return (
                     <ul className="mt-1 space-y-0.5">
@@ -245,7 +245,7 @@ export function ResumePreview({ content, profile, resumeTitle, companyName, clas
                   <p className="text-[11px] leading-[1.6] text-gray-800 mt-0.5">{proj.description}</p>
                 )}
                 {(() => {
-                  const bullets = proj.highlights || proj.bullets;
+                  const bullets = proj.bullets || proj.highlights;
                   if (!bullets || bullets.length === 0) return null;
                   return (
                     <ul className="mt-1 space-y-0.5">
