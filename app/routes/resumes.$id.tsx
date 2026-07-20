@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useSession } from "~/lib/auth-store";
 import { api, getUploadUrl } from "~/lib/api";
 import { normalizeFeedback } from "~/lib/utils";
-import { PageShell, PageHeader, Button, useToastHelpers, CategoryScore, ScoreBadge } from "~/components/ui";
+import { PageShell, Button, useToastHelpers, CategoryScore, ScoreBadge } from "~/components/ui";
 import { ResumePreview } from "~/components/ResumePreview";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfMakeVfsFonts from "pdfmake/build/vfs_fonts";
@@ -14,15 +14,8 @@ import type {
   ResumeVersion,
   Feedback,
   GeneratedResume,
-  ResumeExperience,
-  ResumeProject,
-  ResumeSkill,
-  ResumeBasics,
   UserProfile,
   Job,
-  JobMatchResult,
-  SharedReport,
-  ResumeVersionContent,
   TailoredResumeResult,
   ResumeLanguage,
 } from "types";
@@ -35,12 +28,6 @@ export const meta = () => [
 const EDIT_ICON = (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
-);
-
-const TAILOR_ICON = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
   </svg>
 );
 
@@ -65,7 +52,6 @@ export default function Resume() {
   const [sharingLoading, setSharingLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [tipFeedback, setTipFeedback] = useState<Record<string, boolean>>({});
-  const shareInputRef = useRef<HTMLInputElement | null>(null);
 
   const navigate = useNavigate();
   const { success: toastSuccess } = useToastHelpers();
@@ -235,15 +221,6 @@ export default function Resume() {
     }
   };
 
-  const handleCopyShareUrl = () => {
-    if (shareUrl && shareInputRef.current) {
-      shareInputRef.current.select();
-      document.execCommand("copy");
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    }
-  };
-
   const handleRate = async (tipId: string, helpful: boolean) => {
     if (!id) return;
     try {
@@ -294,33 +271,54 @@ export default function Resume() {
   const displayTitle = resumeVersion?.name || resumeTitle || resume.jobTitle;
   const isAiGenerated = !resumeVersion && generatedContent;
 
+  const handleShareClick = async () => {
+    if (!id) return;
+    try {
+      setSharingLoading(true);
+      if (!shareUrl) {
+        const res = await api.resumes.generateShareLink(id);
+        const url = `${window.location.origin}/share/${res.shareToken}`;
+        setShareUrl(url);
+        await navigator.clipboard.writeText(url);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+      setShareCopied(true);
+      toastSuccess("Copied", "Share link copied to clipboard");
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch (err) {
+      console.error("Share failed:", err);
+    } finally {
+      setSharingLoading(false);
+    }
+  };
+
   return (
     <PageShell maxWidth="2xl" padding="lg">
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{displayTitle}</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {resume.companyName ? `Target: ${resume.companyName}` : "General Resume"}
-            {resumeVersion && <span className="ml-2 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">Saved Version</span>}
-            {isAiGenerated && <span className="ml-2 px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded-full">AI Generated</span>}
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold text-gray-900 truncate">{displayTitle}</h1>
+          <p className="mt-1 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
+            <span className="truncate">{resume.companyName ? `Target: ${resume.companyName}` : "General Resume"}</span>
+            {resumeVersion && <span className="shrink-0 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">Saved Version</span>}
+            {isAiGenerated && <span className="shrink-0 px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded-full">AI Generated</span>}
           </p>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           {resumeUrl && (
             <Link
               to={resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="primary-button text-white rounded-full px-4 py-2 text-sm cursor-pointer font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
+              title="View Original PDF"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              Original PDF
             </Link>
           )}
 
@@ -328,7 +326,7 @@ export default function Resume() {
             variant="outline"
             onClick={handleExportPDF}
             disabled={isExporting}
-            title="Export PDF"
+            title="Download PDF"
             className="p-2"
           >
             {isExporting ? (
@@ -340,42 +338,30 @@ export default function Resume() {
             )}
           </Button>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleShare} disabled={sharingLoading} title="Share" className="p-2">
+          <Button
+            variant="outline"
+            onClick={handleShareClick}
+            disabled={sharingLoading}
+            title="Share"
+            className="p-2"
+          >
+            {shareCopied ? (
+              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
-            </Button>
-            {shareUrl && (
-              <div className="flex items-center gap-1.5">
-                <input
-                  ref={shareInputRef}
-                  type="text"
-                  value={shareUrl}
-                  readOnly
-                  className="px-2 py-1 text-xs bg-white border border-gray-300 rounded text-gray-700 w-48"
-                />
-                <Button variant="outline" size="sm" onClick={handleCopyShareUrl} className="text-xs px-2 py-1">
-                  {shareCopied ? "Copied!" : "Copy"}
-                </Button>
-              </div>
             )}
-          </div>
+          </Button>
 
           <Link
             to={`/resumes/${id}/edit`}
-            className="primary-button text-white rounded-full px-4 py-2 text-sm cursor-pointer font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
           >
             {EDIT_ICON}
             Edit Resume
-          </Link>
-
-          <Link
-            to={`/resumes/${id}/tailored`}
-            className="primary-button text-white rounded-full px-4 py-2 text-sm cursor-pointer font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
-          >
-            {TAILOR_ICON}
-            Tailor for Job
           </Link>
         </div>
       </div>
@@ -400,140 +386,57 @@ export default function Resume() {
               </div>
             )}
           </div>
-
-          {/* Feedback Section */}
-          {feedback && (
-            <div className="mt-8 animate-in fade-in duration-1000">
-              <PageHeader title="ATS Analysis" subtitle="AI-powered resume scoring and feedback" />
-
-              <div className="grid gap-6 md:grid-cols-3">
-                <CategoryScore label="Overall Score" score={feedback.overallScore} />
-                <CategoryScore label="Keyword Match" score={feedback.keywordMatchScore ?? 0} />
-                <CategoryScore label="Format Score" score={feedback.formatScore ?? 0} />
-              </div>
-
-              {feedback.strengths && feedback.strengths.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Strengths</h3>
-                  <ul className="space-y-2">
-                    {(feedback.strengths ?? []).map((s: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {feedback.weaknesses && feedback.weaknesses.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Areas to Improve</h3>
-                  <ul className="space-y-2">
-                    {(feedback.weaknesses ?? []).map((w: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                        {w}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {feedback.suggestions && feedback.suggestions.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Suggestions</h3>
-                  <ul className="space-y-3">
-                    {(feedback.suggestions ?? []).map((s: string, i: number) => (
-                      <li key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-700">{s}</p>
-                          <div className="mt-2 flex gap-2">
-                            <button
-                              onClick={() => handleRate(`${id}-suggestion-${i}`, true)}
-                              className={`text-xs px-2 py-1 rounded ${
-                                tipFeedback[`${id}-suggestion-${i}`] === true
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-white text-gray-600 hover:bg-gray-100"
-                              }`}
-                              disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
-                            >
-                              👍 Helpful
-                            </button>
-                            <button
-                              onClick={() => handleRate(`${id}-suggestion-${i}`, false)}
-                              className={`text-xs px-2 py-1 rounded ${
-                                tipFeedback[`${id}-suggestion-${i}`] === false
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-white text-gray-600 hover:bg-gray-100"
-                              }`}
-                              disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
-                            >
-                              👎 Not Helpful
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-
         </div>
 
         {/* Right Sidebar */}
         <aside className="lg:col-span-3 space-y-6">
+          {/* ATS Analysis */}
+          {feedback && (
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">ATS Analysis</h3>
+              <div className="space-y-4">
+                <CategoryScore label="Overall" score={feedback.overallScore} showBar={false} />
+                <CategoryScore label="Keywords" score={feedback.keywordMatchScore ?? 0} showBar={false} />
+                <CategoryScore label="Format" score={feedback.formatScore ?? 0} showBar={false} />
+              </div>
+              <Link
+                to="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('ats-details')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="mt-4 block text-xs text-primary-600 hover:text-primary-700 font-medium"
+              >
+                View details ↓
+              </Link>
+            </div>
+          )}
+
           {/* Resume Info */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resume Info</h3>
             <dl className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Format</dt>
-                <dd className="font-medium text-gray-900 capitalize">{resume.format}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Target Role</dt>
-                <dd className="font-medium text-gray-900">{displayTitle}</dd>
+              <div>
+                <dt className="text-gray-500 mb-0.5">Target Role</dt>
+                <dd className="font-medium text-gray-900 break-words">{displayTitle}</dd>
               </div>
               {resume.companyName && (
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Target Company</dt>
-                  <dd className="font-medium text-gray-900">{resume.companyName}</dd>
+                <div>
+                  <dt className="text-gray-500 mb-0.5">Target Company</dt>
+                  <dd className="font-medium text-gray-900 break-words">{resume.companyName}</dd>
                 </div>
               )}
               {resumeVersion && (
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Version</dt>
+                <div>
+                  <dt className="text-gray-500 mb-0.5">Version</dt>
                   <dd className="font-medium text-gray-900">{resumeVersion.name}</dd>
                 </div>
               )}
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Uploaded</dt>
+              <div>
+                <dt className="text-gray-500 mb-0.5">Uploaded</dt>
                 <dd className="font-medium text-gray-900">{new Date(resume.createdAt).toLocaleDateString()}</dd>
               </div>
             </dl>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <Link to={`/resumes/${id}/edit`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                Edit Resume
-              </Link>
-              <Link to={`/resumes/${id}/tailored`} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                Tailor for Job
-              </Link>
-            </div>
           </div>
 
           {/* Original File */}
@@ -556,6 +459,90 @@ export default function Resume() {
           )}
         </aside>
       </div>
+
+      {/* Detailed ATS Feedback */}
+      {feedback && (feedback.strengths?.length || feedback.weaknesses?.length || feedback.suggestions?.length) ? (
+        <div id="ats-details" className="mt-12 animate-in fade-in duration-1000">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">ATS Analysis Details</h2>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <CategoryScore label="Overall Score" score={feedback.overallScore} />
+            <CategoryScore label="Keyword Match" score={feedback.keywordMatchScore ?? 0} />
+            <CategoryScore label="Format Score" score={feedback.formatScore ?? 0} />
+          </div>
+
+          {feedback.strengths && feedback.strengths.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Strengths</h3>
+              <ul className="space-y-2">
+                {(feedback.strengths ?? []).map((s: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                    <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {feedback.weaknesses && feedback.weaknesses.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Areas to Improve</h3>
+              <ul className="space-y-2">
+                {(feedback.weaknesses ?? []).map((w: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                    <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    {w}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {feedback.suggestions && feedback.suggestions.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Suggestions</h3>
+              <ul className="space-y-3">
+                {(feedback.suggestions ?? []).map((s: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700">{s}</p>
+                      <div className="mt-2 flex gap-2">
+                        <button
+                          onClick={() => handleRate(`${id}-suggestion-${i}`, true)}
+                          className={`text-xs px-2 py-1 rounded ${
+                            tipFeedback[`${id}-suggestion-${i}`] === true
+                              ? "bg-green-100 text-green-700"
+                              : "bg-white text-gray-600 hover:bg-gray-100"
+                          }`}
+                          disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
+                        >
+                          👍 Helpful
+                        </button>
+                        <button
+                          onClick={() => handleRate(`${id}-suggestion-${i}`, false)}
+                          className={`text-xs px-2 py-1 rounded ${
+                            tipFeedback[`${id}-suggestion-${i}`] === false
+                              ? "bg-red-100 text-red-700"
+                              : "bg-white text-gray-600 hover:bg-gray-100"
+                          }`}
+                          disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
+                        >
+                          👎 Not Helpful
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      ) : null}
     </PageShell>
   );
 }
