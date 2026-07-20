@@ -131,6 +131,13 @@ export default function ResumeEditPage() {
     education: [],
     skills: [],
     projects: [],
+    certifications: [],
+    languages: [],
+    awards: [],
+    publications: [],
+    volunteer: [],
+    references: [],
+    customSections: [],
   });
 
   const [activeSection, setActiveSection] = useState<string>("summary");
@@ -166,11 +173,22 @@ export default function ResumeEditPage() {
       }
 
       // Populate content from generatedContent or fallback
-      if (resumeData.generatedContent) {
-        setContent(resumeData.generatedContent);
-      } else if (resumeData.textContent) {
-        // Parse text content as fallback
-        setContent(parseTextToContent(resumeData.textContent));
+      const raw = resumeData.generatedContent || (resumeData.textContent ? parseTextToContent(resumeData.textContent) : null);
+      if (raw) {
+        setContent({
+          summary: raw.summary || "",
+          experience: raw.experience || [],
+          education: raw.education || [],
+          skills: raw.skills || [],
+          projects: raw.projects || [],
+          certifications: raw.certifications || [],
+          languages: raw.languages || [],
+          awards: raw.awards || [],
+          publications: raw.publications || [],
+          volunteer: raw.volunteer || [],
+          references: raw.references || [],
+          customSections: raw.customSections || [],
+        });
       }
     } catch (err) {
       console.error("Failed to load resume:", err);
@@ -223,7 +241,7 @@ export default function ResumeEditPage() {
         contactInfo: contact,
       } as any);
       toastSuccess("Resume updated", "Your changes have been saved");
-      navigate(`/resume/${id}`);
+      navigate(`/resumes/${id}`);
     } catch (err) {
       toastError("Save failed", err instanceof Error ? err.message : "Unknown error");
     }
@@ -308,6 +326,90 @@ export default function ResumeEditPage() {
     }));
   };
 
+  // Certification helpers
+  const addCertification = () => {
+    setContent((prev: any) => ({ ...prev, certifications: [...(prev.certifications || []), { name: "", issuer: "", date: "" }] }));
+    setActiveSection("certifications");
+  };
+  const updateCertification = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, certifications: prev.certifications.map((c: any, j: number) => j === i ? { ...c, ...update } : c) }));
+  };
+  const removeCertification = (i: number) => {
+    setContent((prev: any) => ({ ...prev, certifications: prev.certifications.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Language helpers
+  const addLanguage = () => {
+    setContent((prev: any) => ({ ...prev, languages: [...(prev.languages || []), { name: "", proficiency: "" }] }));
+    setActiveSection("languages");
+  };
+  const updateLanguage = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, languages: prev.languages.map((l: any, j: number) => j === i ? { ...l, ...update } : l) }));
+  };
+  const removeLanguage = (i: number) => {
+    setContent((prev: any) => ({ ...prev, languages: prev.languages.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Award helpers
+  const addAward = () => {
+    setContent((prev: any) => ({ ...prev, awards: [...(prev.awards || []), { title: "", issuer: "", date: "" }] }));
+    setActiveSection("awards");
+  };
+  const updateAward = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, awards: prev.awards.map((a: any, j: number) => j === i ? { ...a, ...update } : a) }));
+  };
+  const removeAward = (i: number) => {
+    setContent((prev: any) => ({ ...prev, awards: prev.awards.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Publication helpers
+  const addPublication = () => {
+    setContent((prev: any) => ({ ...prev, publications: [...(prev.publications || []), { title: "", publisher: "", date: "" }] }));
+    setActiveSection("publications");
+  };
+  const updatePublication = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, publications: prev.publications.map((p: any, j: number) => j === i ? { ...p, ...update } : p) }));
+  };
+  const removePublication = (i: number) => {
+    setContent((prev: any) => ({ ...prev, publications: prev.publications.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Volunteer helpers
+  const addVolunteer = () => {
+    setContent((prev: any) => ({ ...prev, volunteer: [...(prev.volunteer || []), { organization: "", role: "", startDate: "", endDate: "", description: "" }] }));
+    setActiveSection("volunteer");
+  };
+  const updateVolunteer = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, volunteer: prev.volunteer.map((v: any, j: number) => j === i ? { ...v, ...update } : v) }));
+  };
+  const removeVolunteer = (i: number) => {
+    setContent((prev: any) => ({ ...prev, volunteer: prev.volunteer.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Reference helpers
+  const addReference = () => {
+    setContent((prev: any) => ({ ...prev, references: [...(prev.references || []), { name: "", title: "", company: "", email: "" }] }));
+    setActiveSection("references");
+  };
+  const updateReference = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, references: prev.references.map((r: any, j: number) => j === i ? { ...r, ...update } : r) }));
+  };
+  const removeReference = (i: number) => {
+    setContent((prev: any) => ({ ...prev, references: prev.references.filter((_: any, j: number) => j !== i) }));
+  };
+
+  // Custom section helpers
+  const addCustomSection = () => {
+    setContent((prev: any) => ({ ...prev, customSections: [...(prev.customSections || []), { title: "", content: "" }] }));
+    setActiveSection("customSections");
+  };
+  const updateCustomSection = (i: number, update: any) => {
+    setContent((prev: any) => ({ ...prev, customSections: prev.customSections.map((s: any, j: number) => j === i ? { ...s, ...update } : s) }));
+  };
+  const removeCustomSection = (i: number) => {
+    setContent((prev: any) => ({ ...prev, customSections: prev.customSections.filter((_: any, j: number) => j !== i) }));
+  };
+
   if (isPending || loading) {
     return (
       <PageShell>
@@ -331,6 +433,13 @@ export default function ResumeEditPage() {
     { id: "education", label: "Education" },
     { id: "skills", label: "Skills" },
     { id: "projects", label: "Projects" },
+    { id: "certifications", label: "Certifications" },
+    { id: "languages", label: "Languages" },
+    { id: "awards", label: "Awards" },
+    { id: "publications", label: "Publications" },
+    { id: "volunteer", label: "Volunteer" },
+    { id: "references", label: "References" },
+    { id: "customSections", label: "Custom Sections" },
   ];
 
   return (
@@ -365,7 +474,7 @@ export default function ResumeEditPage() {
               {saving ? "Saving..." : "Save Changes"}
             </Button>
             <Link
-              to={`/resume/${id}`}
+              to={`/resumes/${id}`}
               className="text-center text-sm text-gray-500 hover:text-gray-700 py-2"
             >
               Cancel
@@ -508,13 +617,7 @@ export default function ResumeEditPage() {
                   <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
                     <div className="flex items-start justify-between">
                       <span className="text-xs font-medium text-gray-400">Project {i + 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeProject(i)}
-                        className="text-red-400 hover:text-red-600 text-sm"
-                      >
-                        Remove
-                      </button>
+                      <button type="button" onClick={() => removeProject(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
                     </div>
                     <Input label="Project Name" value={proj.name} onChange={(e) => updateProject(i, { name: e.target.value })} placeholder="e.g. AI Resume Analyzer" />
                     <Textarea label="Description" value={proj.description} onChange={(e) => updateProject(i, { description: e.target.value })} rows={2} placeholder="What does this project do?" />
@@ -525,6 +628,173 @@ export default function ResumeEditPage() {
                         onChange={(technologies) => updateProject(i, { technologies })}
                       />
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Certifications Section */}
+            {activeSection === "certifications" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
+                  <Button variant="secondary" size="sm" onClick={addCertification}>+ Add</Button>
+                </div>
+                {(content.certifications || []).length === 0 && <p className="text-sm text-gray-500 italic">No certifications yet.</p>}
+                {(content.certifications || []).map((cert: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Certification {i + 1}</span>
+                      <button type="button" onClick={() => removeCertification(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Name" value={cert.name} onChange={(e) => updateCertification(i, { name: e.target.value })} placeholder="e.g. AWS Solutions Architect" />
+                      <Input label="Issuer" value={cert.issuer} onChange={(e) => updateCertification(i, { issuer: e.target.value })} placeholder="e.g. Amazon" />
+                      <Input label="Date" value={cert.date} onChange={(e) => updateCertification(i, { date: e.target.value })} placeholder="e.g. Jan 2024" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Languages Section */}
+            {activeSection === "languages" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Languages</h3>
+                  <Button variant="secondary" size="sm" onClick={addLanguage}>+ Add</Button>
+                </div>
+                {(content.languages || []).length === 0 && <p className="text-sm text-gray-500 italic">No languages yet.</p>}
+                {(content.languages || []).map((lang: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Language {i + 1}</span>
+                      <button type="button" onClick={() => removeLanguage(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Language" value={lang.name || lang.language || ""} onChange={(e) => updateLanguage(i, { name: e.target.value, language: e.target.value })} placeholder="e.g. Spanish" />
+                      <Input label="Proficiency" value={lang.proficiency} onChange={(e) => updateLanguage(i, { proficiency: e.target.value })} placeholder="e.g. Fluent" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Awards Section */}
+            {activeSection === "awards" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Awards & Honors</h3>
+                  <Button variant="secondary" size="sm" onClick={addAward}>+ Add</Button>
+                </div>
+                {(content.awards || []).length === 0 && <p className="text-sm text-gray-500 italic">No awards yet.</p>}
+                {(content.awards || []).map((award: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Award {i + 1}</span>
+                      <button type="button" onClick={() => removeAward(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Title" value={award.title || award.name || ""} onChange={(e) => updateAward(i, { title: e.target.value, name: e.target.value })} placeholder="e.g. Employee of the Year" />
+                      <Input label="Issuer" value={award.issuer} onChange={(e) => updateAward(i, { issuer: e.target.value })} placeholder="e.g. Google" />
+                      <Input label="Date" value={award.date} onChange={(e) => updateAward(i, { date: e.target.value })} placeholder="e.g. Dec 2023" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Publications Section */}
+            {activeSection === "publications" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
+                  <Button variant="secondary" size="sm" onClick={addPublication}>+ Add</Button>
+                </div>
+                {(content.publications || []).length === 0 && <p className="text-sm text-gray-500 italic">No publications yet.</p>}
+                {(content.publications || []).map((pub: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Publication {i + 1}</span>
+                      <button type="button" onClick={() => removePublication(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Title" value={pub.title || pub.name || ""} onChange={(e) => updatePublication(i, { title: e.target.value, name: e.target.value })} placeholder="e.g. Distributed Systems Patterns" />
+                      <Input label="Publisher" value={pub.publisher} onChange={(e) => updatePublication(i, { publisher: e.target.value })} placeholder="e.g. ACM" />
+                      <Input label="Date" value={pub.date} onChange={(e) => updatePublication(i, { date: e.target.value })} placeholder="e.g. Mar 2023" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Volunteer Section */}
+            {activeSection === "volunteer" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Volunteer Experience</h3>
+                  <Button variant="secondary" size="sm" onClick={addVolunteer}>+ Add</Button>
+                </div>
+                {(content.volunteer || []).length === 0 && <p className="text-sm text-gray-500 italic">No volunteer experience yet.</p>}
+                {(content.volunteer || []).map((vol: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Volunteer {i + 1}</span>
+                      <button type="button" onClick={() => removeVolunteer(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Organization" value={vol.organization} onChange={(e) => updateVolunteer(i, { organization: e.target.value })} placeholder="e.g. Red Cross" />
+                      <Input label="Role" value={vol.role} onChange={(e) => updateVolunteer(i, { role: e.target.value })} placeholder="e.g. Volunteer Coordinator" />
+                      <Input label="Start Date" value={vol.startDate} onChange={(e) => updateVolunteer(i, { startDate: e.target.value })} placeholder="e.g. Jan 2022" />
+                      <Input label="End Date" value={vol.endDate} onChange={(e) => updateVolunteer(i, { endDate: e.target.value })} placeholder="e.g. Present" />
+                    </div>
+                    <Textarea label="Description" value={vol.description} onChange={(e) => updateVolunteer(i, { description: e.target.value })} rows={2} placeholder="What did you do?" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* References Section */}
+            {activeSection === "references" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">References</h3>
+                  <Button variant="secondary" size="sm" onClick={addReference}>+ Add</Button>
+                </div>
+                {(content.references || []).length === 0 && <p className="text-sm text-gray-500 italic">No references yet.</p>}
+                {(content.references || []).map((ref: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Reference {i + 1}</span>
+                      <button type="button" onClick={() => removeReference(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input label="Name" value={ref.name} onChange={(e) => updateReference(i, { name: e.target.value })} placeholder="e.g. Jane Smith" />
+                      <Input label="Title" value={ref.title} onChange={(e) => updateReference(i, { title: e.target.value })} placeholder="e.g. Engineering Manager" />
+                      <Input label="Company" value={ref.company} onChange={(e) => updateReference(i, { company: e.target.value })} placeholder="e.g. Google" />
+                      <Input label="Email" value={ref.email} onChange={(e) => updateReference(i, { email: e.target.value })} placeholder="e.g. jane@google.com" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Custom Sections */}
+            {activeSection === "customSections" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Custom Sections</h3>
+                  <Button variant="secondary" size="sm" onClick={addCustomSection}>+ Add</Button>
+                </div>
+                {(content.customSections || []).length === 0 && <p className="text-sm text-gray-500 italic">No custom sections yet.</p>}
+                {(content.customSections || []).map((cs: any, i: number) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-xl space-y-3 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-gray-400">Section {i + 1}</span>
+                      <button type="button" onClick={() => removeCustomSection(i)} className="text-red-400 hover:text-red-600 text-sm">Remove</button>
+                    </div>
+                    <Input label="Section Title" value={cs.title || cs.name || ""} onChange={(e) => updateCustomSection(i, { title: e.target.value, name: e.target.value })} placeholder="e.g. Leadership" />
+                    <Textarea label="Content" value={cs.content} onChange={(e) => updateCustomSection(i, { content: e.target.value })} rows={4} placeholder="Section content (one item per line)..." />
                   </div>
                 ))}
               </div>
