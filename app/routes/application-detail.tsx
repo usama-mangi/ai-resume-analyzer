@@ -258,13 +258,13 @@ export default function ApplicationDetail() {
             {app.resumeId && (
               <div className="flex gap-2 mt-4">
                 <Link
-                  to={`/interview-questions/${app.resumeId}?jobId=${app.jobId || ''}`}
+                  to={`/resumes/${app.resumeId}/interview-questions?jobId=${app.jobId || ''}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary-50 text-primary-700 border border-primary-200 hover:bg-primary-100 transition"
                 >
                   Generate Interview Questions
                 </Link>
                 <Link
-                  to={`/salary-estimate/${app.resumeId}?jobId=${app.jobId || ''}`}
+                  to={`/resumes/${app.resumeId}/salary-estimate?jobId=${app.jobId || ''}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition"
                 >
                   Estimate Salary
