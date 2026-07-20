@@ -3,7 +3,14 @@
     "**/*",
     "**/.server/**/*",
     "**/.client/**/*",
-    ".react-router/types/**/*"
+    ".react-router/types/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "server/**/*",
+    "browser-extension/**/*",
+    "node_modules/**/*",
+    "build/**/*"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
@@ -15,7 +22,11 @@
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "constants": ["./constants/index"],
+      "constants/*": ["./constants/*"],
+      "types": ["./types/index"],
+      "types/*": ["./types/*"]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
