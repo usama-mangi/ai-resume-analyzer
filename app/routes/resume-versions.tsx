@@ -381,7 +381,7 @@ export default function ResumeVersions() {
                   <p className="text-sm text-gray-500 mt-1">AI-powered customization for a specific job</p>
                 </Link>
                 <Link
-                  to={`/cover-letter/${id}`}
+                  to={`/resumes/${id}/cover-letter`}
                   className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center"
                 >
                   <img src="/icons/pin.svg" className="size-8 mx-auto text-blue-600 mb-2" alt="" />
@@ -389,7 +389,7 @@ export default function ResumeVersions() {
                   <p className="text-sm text-gray-500 mt-1">Generate tailored cover letter</p>
                 </Link>
                 <Link
-                  to={`/skill-gap/${id}`}
+                  to={`/resumes/${id}/skill-gap`}
                   className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center"
                 >
                   <img src="/icons/info.svg" className="size-8 mx-auto text-blue-600 mb-2" alt="" />
