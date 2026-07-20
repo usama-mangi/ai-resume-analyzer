@@ -160,20 +160,6 @@ export default function ResumeEditPage() {
       ]);
       setResume(resumeData);
 
-      // Populate contact info from profile
-      if (profileData.user) {
-        setContact({
-          name: profileData.user.name || "",
-          headline: profileData.user.headline || "",
-          email: profileData.user.email || "",
-          phone: profileData.user.phone || "",
-          location: profileData.user.location || "",
-          linkedinUrl: profileData.user.linkedinUrl || "",
-          githubUrl: profileData.user.githubUrl || "",
-          websiteUrl: profileData.user.websiteUrl || "",
-        });
-      }
-
       // Populate content from generatedContent or fallback
       const raw = resumeData.generatedContent || (resumeData.textContent ? parseTextToContent(resumeData.textContent) : null);
       if (raw) {
@@ -191,6 +177,33 @@ export default function ResumeEditPage() {
           references: raw.references || [],
           customSections: raw.customSections || [],
         });
+
+        // Contact info: prefer generatedContent.basics, fallback to profile
+        const basics = (raw as any).basics || {};
+        setContact({
+          name: basics.name || profileData.user?.name || "",
+          headline: basics.headline || profileData.user?.headline || "",
+          email: basics.email || profileData.user?.email || "",
+          phone: basics.phone || profileData.user?.phone || "",
+          location: basics.location || profileData.user?.location || "",
+          linkedinUrl: basics.linkedin || profileData.user?.linkedinUrl || "",
+          githubUrl: basics.github || profileData.user?.githubUrl || "",
+          websiteUrl: basics.website || profileData.user?.websiteUrl || "",
+        });
+      } else {
+        // No generated content — fall back to profile
+        if (profileData.user) {
+          setContact({
+            name: profileData.user.name || "",
+            headline: profileData.user.headline || "",
+            email: profileData.user.email || "",
+            phone: profileData.user.phone || "",
+            location: profileData.user.location || "",
+            linkedinUrl: profileData.user.linkedinUrl || "",
+            githubUrl: profileData.user.githubUrl || "",
+            websiteUrl: profileData.user.websiteUrl || "",
+          });
+        }
       }
     } catch (err) {
       console.error("Failed to load resume:", err);
@@ -238,11 +251,25 @@ export default function ResumeEditPage() {
     if (!id) return;
     setSaving(true);
     try {
+      // Embed contact info into generatedContent.basics so it persists
+      const contentWithBasics = {
+        ...content,
+        basics: {
+          name: contact.name,
+          headline: contact.headline,
+          email: contact.email,
+          phone: contact.phone,
+          location: contact.location,
+          linkedin: contact.linkedinUrl,
+          github: contact.githubUrl,
+          website: contact.websiteUrl,
+        },
+      };
       await api.resumes.updateContent(id, {
-        generatedContent: content,
+        generatedContent: contentWithBasics,
         contactInfo: contact,
       } as any);
-      updateResume(id, content);
+      updateResume(id, contentWithBasics);
       toastSuccess("Resume updated", "Your changes have been saved");
       navigate(`/resumes/${id}`);
     } catch (err) {

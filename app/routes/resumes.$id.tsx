@@ -99,12 +99,21 @@ export default function Resume() {
           } as UserProfile);
         } catch {}
 
-        // Load generated content
-        if (resumeData.jobDescription) {
+        // Load generated content: prefer store (freshest) → resumeData.generatedContent → tailored resume API
+        const storeContent = useResumeStore.getState().resumes[id]?.content;
+        if (storeContent) {
+          setGeneratedContent(storeContent);
+          setIsGenerated(true);
+          setResumeTitle((storeContent as any).basics?.headline || resumeData.jobTitle || "");
+        } else if (resumeData.generatedContent) {
+          const gc = resumeData.generatedContent as GeneratedResume;
+          setGeneratedContent(gc);
+          setIsGenerated(true);
+          setResumeTitle((gc as any).basics?.headline || resumeData.jobTitle || "");
+        } else if (resumeData.jobDescription) {
           try {
             const generated: TailoredResumeResult | null = await api.resumes.getTailoredResume(id).catch(() => null);
             if (generated?.tailoredResume) {
-              // Normalize tailored resume format to standard resume format
               const tr = generated.tailoredResume;
               const normalized: GeneratedResume = {
                 ...tr,
@@ -121,7 +130,6 @@ export default function Resume() {
               setGeneratedContent(normalized);
               setTextContent(generated.textContent || "");
               setIsGenerated(true);
-              // Use the jobId stored in the tailored resume result to fetch the correct job title
               const storedJobId = generated.jobId;
               let title = tr.basics?.headline || resumeData.jobTitle || "";
               if (storedJobId) {
