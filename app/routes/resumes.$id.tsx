@@ -689,7 +689,7 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
       body: [[{ text: text.toUpperCase(), bold: true, fontSize: SECTION, font: F, color: "#000000" }]],
     },
     layout: {
-      hLineWidth: () => 0.5,
+      hLineWidth: (i: number) => i === 0 ? 0 : 0.5,
       vLineWidth: () => 0,
       paddingBottom: () => 3,
     },
