@@ -1,5 +1,6 @@
 .DS_Store
 /node_modules/
+.env
 
 # React Router
 /.react-router/
@@ -10,3 +11,7 @@
 /server/dist/
 /server/uploads/
 /server/.env
+/server/server.log
+
+# MiMoCode
+.mimocode/
