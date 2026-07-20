@@ -658,6 +658,13 @@ export default function ResumeEditPage() {
                         onChange={(technologies) => updateProject(i, { technologies })}
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bullet Points</label>
+                      <BulletEditor
+                        bullets={(proj.bullets || proj.highlights || []) as string[]}
+                        onChange={(bullets) => updateProject(i, { bullets })}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
