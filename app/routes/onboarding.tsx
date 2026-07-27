@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useSession } from "~/lib/auth-store";
 import { api } from "~/lib/api";
 import { PageShell, Button, Input, Textarea, Card, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Complete Your Profile" },
+  { title: "Career Autopilot | Complete Your Profile" },
 ];
 
 const STEPS = ["Basic Info", "Education", "Experience", "Skills", "Projects", "Links", "Review"];
@@ -108,7 +108,7 @@ export default function OnboardingPage() {
       await api.profile.update({ education, experience, projects, skills });
       // Mark onboarding complete
       await api.profile.completeOnboarding();
-      toastSuccess("Profile complete", "Welcome to Resumind!");
+      toastSuccess("Profile complete", "Welcome to Career Autopilot!");
       navigate("/");
     } catch (err) {
       toastError("Failed to save", err instanceof Error ? err.message : "Unknown error");
@@ -178,6 +178,12 @@ export default function OnboardingPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <Link to="/" className="flex items-center gap-2.5 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
+              <span className="text-white text-sm font-bold">CA</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900 tracking-tight">Career Autopilot</span>
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Complete Your Profile</h1>
           <p className="text-sm text-gray-500">Tell us about yourself so we can generate a tailored resume for you.</p>
         </div>

@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, ScoreBadge, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | LinkedIn Profile Optimizer" },
+  { title: "Career Autopilot | LinkedIn Profile Optimizer" },
   { name: "description", content: "Analyze and optimize your LinkedIn profile for target roles" },
 ];
 

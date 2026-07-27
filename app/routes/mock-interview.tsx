@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Mock Interview" },
+  { title: "Career Autopilot | Mock Interview" },
   { name: "description", content: "AI-powered mock interview simulator with real-time feedback" },
 ];
 

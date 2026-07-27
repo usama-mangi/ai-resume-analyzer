@@ -263,7 +263,7 @@ export default function BatchComparison({
                   </div>
                 </div>
                 <Link
-                  to={`/resume/${resume.id}`}
+                  to={`/resumes/${resume.id}`}
                   className="mt-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors text-center"
                 >
                   View Full Details →

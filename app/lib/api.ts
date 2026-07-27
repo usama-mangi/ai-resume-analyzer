@@ -1,32 +1,225 @@
-import type { ApplicationAnalyticsRequest, ApplicationCreateRequest, ApplicationStatusUpdateRequest, ApplicationUpdateRequest, BatchItemResponse, BehavioralBankRequest, BehavioralQuestionBank, BenefitsAnalysisRequest, BenefitsAnalysisResult, CaseStudyCreateRequest, CaseStudyDetail, CaseStudyGenerateRequest, CaseStudyListItem, CaseStudyUpdateRequest, CheatSheetRequest, ChecklistItemUpdateRequest, CommunicationLogCreateRequest, CompanyBriefing, CompanyBriefingRequest, CoverLetter, CoverLetterTemplate, CoverLetterTemplateApplyRequest, CoverLetterTemplateCreateRequest, CoverLetterTemplateUpdateRequest, DecisionCreateRequest, DecisionUpdateRequest, EquityCalculationRequest, EquityCalculationResult, Feedback, FeedbackCreateRequest, FeedbackUpdateRequest, First90DaysTracker, FollowUpEmail, FollowUpEmailCreateRequest, FollowUpEmailGenerateRequest, FollowUpEmailUpdateRequest, InterviewAnalyticsRequest, InterviewCheatSheet, InterviewerFeedback, InterviewNote, InterviewNoteCreateRequest, InterviewNoteUpdateRequest, InterviewPerformanceAnalytics, InterviewQuestionsResult, InterviewScheduleEntry, Job, JobDetailsResponse, JobListRequest, JobMatchResult, JobSearchRequest, JobSearchResult, LinkedInProfile, LinkedInProfileAnalysis, ManagerAlignment, ManagerAlignmentCreateRequest, MockInterviewCreateRequest, MockInterviewMessageRequest, MockInterviewSession, MultiJdResult, NegotiationCoach, NegotiationCoachCreateRequest, NetworkMap, NetworkMapCreateRequest, OfferComparisonCreateRequest, OfferComparisonItem, OfferComparisonUpdateRequest, OfferDecision, OnboardingChecklist, OnboardingChecklistCreateRequest, OnboardingPlan, OnboardingPlanCreateRequest, PanelInterview, PanelInterviewCreateRequest, PanelInterviewUpdateRequest, ProfileUpdateRequest, Project, Reference, ReferralUpsertRequest, ResignationLetter, ResignationLetterGenerateRequest, Resume, ResumeContentUpdateRequest, ResumeGenerateRequest, ResumeTailorRequest, ResumeTemplateSuggestionsResult, ResumeVersion, ResumeVersionCreateRequest, ResumeVersionUpdateRequest, SalaryRangeResult, SavedSearch, SavedSearchCreateRequest, SavedSearchUpdateRequest, ScheduleCreateRequest, ScheduleListRequest, ScheduleUpdateRequest, SkillGapResult, SkillRefresh, SkillRefreshCreateRequest, TailoredResumeResult, TechnicalAssessment, TechnicalAssessmentRequest, TrackerCreateRequest, TrackerUpdateRequest, UserUpdateRequest, SharedFeedback, SharedReport } from "types";
+import type { 
+  ApplicationAnalyticsRequest, 
+  ApplicationCreateRequest, 
+  ApplicationStatusUpdateRequest, 
+  ApplicationUpdateRequest, 
+  BatchItemResponse, 
+  BehavioralBankRequest, 
+  BehavioralQuestionBank, 
+  BenefitsAnalysisRequest, 
+  BenefitsAnalysisResult, 
+  CaseStudyCreateRequest, 
+  CaseStudyDetail, 
+  CaseStudyGenerateRequest, 
+  CaseStudyListItem, 
+  CaseStudyUpdateRequest, 
+  CheatSheetRequest, 
+  ChecklistItemUpdateRequest, 
+  CommunicationLogCreateRequest, 
+  CompanyBriefing, 
+  CompanyBriefingRequest, 
+  CoverLetter, 
+  CoverLetterTemplate, 
+  CoverLetterTemplateApplyRequest, 
+  CoverLetterTemplateCreateRequest, 
+  CoverLetterTemplateUpdateRequest, 
+  DecisionCreateRequest, 
+  DecisionUpdateRequest, 
+  EquityCalculationRequest, 
+  EquityCalculationResult, 
+  Feedback, 
+  FeedbackCreateRequest, 
+  FeedbackUpdateRequest, 
+  First90DaysTracker, 
+  FollowUpEmail, 
+  FollowUpEmailCreateRequest, 
+  FollowUpEmailGenerateRequest, 
+  FollowUpEmailUpdateRequest, 
+  InterviewAnalyticsRequest, 
+  InterviewCheatSheet, 
+  InterviewerFeedback, 
+  InterviewNote, 
+  InterviewNoteCreateRequest, 
+  InterviewNoteUpdateRequest, 
+  InterviewPerformanceAnalytics, 
+  InterviewQuestionsResult, 
+  InterviewScheduleEntry, 
+  Job, 
+  JobDetailsResponse, 
+  JobListRequest, 
+  JobMatchResult, 
+  JobSearchRequest, 
+  JobSearchResult, 
+  LinkedInProfile, 
+  LinkedInProfileAnalysis, 
+  ManagerAlignment, 
+  ManagerAlignmentCreateRequest, 
+  MockInterviewCreateRequest, 
+  MockInterviewMessageRequest, 
+  MockInterviewSession, 
+  MultiJdResult, 
+  NegotiationCoach, 
+  NegotiationCoachCreateRequest, 
+  NetworkMap, 
+  NetworkMapCreateRequest, 
+  OfferComparisonCreateRequest, 
+  OfferComparisonItem, 
+  OfferComparisonUpdateRequest, 
+  OfferDecision, 
+  OnboardingChecklist, 
+  OnboardingChecklistCreateRequest, 
+  OnboardingPlan, 
+  OnboardingPlanCreateRequest, 
+  PanelInterview, 
+  PanelInterviewCreateRequest, 
+  PanelInterviewUpdateRequest, 
+  ProfileUpdateRequest, 
+  Project, 
+  Reference, 
+  ReferralUpsertRequest, 
+  ResignationLetter, 
+  ResignationLetterGenerateRequest, 
+  Resume, 
+  ResumeContentUpdateRequest, 
+  ResumeGenerateRequest, 
+  ResumeTailorRequest, 
+  ResumeTemplateSuggestionsResult, 
+  ResumeVersion, 
+  ResumeVersionCreateRequest,
+  ResumeVersionUpdateRequest,
+  SkillGapResult,
+  SalaryRangeResult,
+  TailoredResumeResult,
+  SavedSearch,
+  SavedSearchCreateRequest,
+  SavedSearchUpdateRequest,
+  TechnicalAssessment,
+  TechnicalAssessmentRequest,
+  ScheduleCreateRequest,
+  ScheduleListRequest,
+  ScheduleUpdateRequest,
+  TrackerCreateRequest,
+  TrackerUpdateRequest,
+  SkillRefreshCreateRequest,
+  SkillRefresh,
+  UserUpdateRequest,
+  SharedReport,
+  SharedFeedback
+} from "types";
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+interface RequestOptions extends RequestInit {
+  isFormData?: boolean;
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+  deduplicate?: boolean;
+}
+
+const pendingRequests = new Map<string, Promise<any>>();
+const DEFAULT_TIMEOUT = 30000;
+const DEFAULT_RETRIES = 2;
+const DEFAULT_RETRY_DELAY = 1000;
+
+function generateRequestKey(path: string, options?: RequestOptions): string {
+  const { method = 'GET', body } = options || {};
+  const bodyHash = body ? JSON.stringify(body) : '';
+  return `${method}:${path}:${bodyHash}`;
+}
+
 async function request<T>(
   path: string,
-  options?: RequestInit & { isFormData?: boolean },
+  options?: RequestOptions,
 ): Promise<T> {
-  const headers: Record<string, string> = {};
+  const {
+    isFormData,
+    timeout = DEFAULT_TIMEOUT,
+    retries = DEFAULT_RETRIES,
+    retryDelay = DEFAULT_RETRY_DELAY,
+    deduplicate = false,
+    ...fetchOptions
+  } = options || {};
 
-  if (!options?.isFormData) {
+  const requestKey = generateRequestKey(path, options);
+  
+  if (deduplicate && pendingRequests.has(requestKey)) {
+    return pendingRequests.get(requestKey) as Promise<T>;
+  }
+
+  const headers: Record<string, string> = {};
+  if (!isFormData) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      ...headers,
-      ...(options?.headers as Record<string, string> || {}),
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || 'Request failed');
+  const attemptFetch = async (attempt: number): Promise<T> => {
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...fetchOptions,
+        credentials: 'include',
+        headers: {
+          ...headers,
+          ...(fetchOptions.headers as Record<string, string> || {}),
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        let errorMessage = res.statusText;
+        try {
+          const err = await res.json();
+          errorMessage = err.message || err.error || errorMessage;
+        } catch {
+          // Use status text
+        }
+
+        const error = new Error(errorMessage) as Error & { 
+          status: number; 
+          retryable: boolean;
+          data?: any;
+        };
+        error.status = res.status;
+        error.retryable = res.status >= 500 || res.status === 429 || res.status === 408;
+        error.data = { path, method: fetchOptions.method || 'GET' };
+        throw error;
+      }
+
+      const contentType = res.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        return res.json();
+      }
+      return res.text() as any;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        const error = new Error('Request timeout') as Error & { status: number; retryable: boolean };
+        error.status = 408;
+        error.retryable = true;
+        throw error;
+      }
+
+      if (attempt < retries && (err as any).retryable) {
+        await new Promise(r => setTimeout(r, retryDelay * Math.pow(2, attempt)));
+        return attemptFetch(attempt + 1);
+      }
+      throw err;
+    }
+  };
+
+  const promise = attemptFetch(0);
+  
+  if (deduplicate) {
+    pendingRequests.set(requestKey, promise);
+    promise.finally(() => pendingRequests.delete(requestKey));
   }
 
-  return res.json();
+  return promise;
 }
 
 export const api = {
@@ -39,11 +232,12 @@ export const api = {
         method: 'POST',
         body: formData,
         isFormData: true,
+        timeout: 60000,
       }),
 
-    list: () => request<Resume[]>('/api/resumes'),
+    list: () => request<Resume[]>('/api/resumes', { deduplicate: true }),
 
-    get: (id: string) => request<Resume>(`/api/resumes/${id}`),
+    get: (id: string) => request<Resume>(`/api/resumes/${id}`, { deduplicate: true }),
 
     delete: (id: string) =>
       request<void>(`/api/resumes/${id}`, { method: 'DELETE' }),
@@ -58,63 +252,70 @@ export const api = {
       request<Resume>('/api/resumes/generate', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     analyze: (id: string) =>
-      request<Feedback>(`/api/resumes/${id}/analyze`, { method: 'POST' }),
+      request<Feedback>(`/api/resumes/${id}/analyze`, { method: 'POST', timeout: 60000 }),
 
     coverLetter: (id: string, body: { companyName: string; hiringManager?: string; jobDescription?: string }) =>
       request<CoverLetter>(`/api/resumes/${id}/cover-letter`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     skillGap: (id: string, body: { jobDescription?: string }) =>
       request<SkillGapResult>(`/api/resumes/${id}/skill-gap`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     interviewQuestions: (id: string, body: { jobDescription?: string; questionCount?: number; focusAreas?: string }) =>
       request<InterviewQuestionsResult>(`/api/resumes/${id}/interview-questions`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     salaryEstimate: (id: string, body: { targetLocation?: string; yearsOfExperience?: string; targetIndustry?: string }) =>
       request<SalaryRangeResult>(`/api/resumes/${id}/salary-estimate`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     multiJd: (id: string, body: { jobEntries: Array<{ title: string; description: string }> }) =>
       request<MultiJdResult>(`/api/resumes/${id}/multi-jd`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     templateSuggestions: (id: string) =>
-      request<ResumeTemplateSuggestionsResult>(`/api/resumes/${id}/template-suggestions`),
+      request<ResumeTemplateSuggestionsResult>(`/api/resumes/${id}/template-suggestions`, { deduplicate: true }),
 
     getSkillGap: (id: string) =>
-      request<SkillGapResult>(`/api/resumes/${id}/skill-gap`),
+      request<SkillGapResult>(`/api/resumes/${id}/skill-gap`, { deduplicate: true }),
 
     getInterviewQuestions: (id: string) =>
-      request<InterviewQuestionsResult>(`/api/resumes/${id}/interview-questions`),
+      request<InterviewQuestionsResult>(`/api/resumes/${id}/interview-questions`, { deduplicate: true }),
 
     getSalaryEstimate: (id: string) =>
-      request<SalaryRangeResult>(`/api/resumes/${id}/salary-estimate`),
+      request<SalaryRangeResult>(`/api/resumes/${id}/salary-estimate`, { deduplicate: true }),
 
     getTemplateSuggestions: (id: string) =>
-      request<ResumeTemplateSuggestionsResult>(`/api/resumes/${id}/template-suggestions`),
+      request<ResumeTemplateSuggestionsResult>(`/api/resumes/${id}/template-suggestions`, { deduplicate: true }),
 
     getTailoredResume: (id: string, jobId?: string) =>
-      request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume${jobId ? `?jobId=${jobId}` : ''}`),
+      request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume${jobId ? `?jobId=${jobId}` : ''}`, { deduplicate: true }),
 
     generateTailoredResume: (id: string, body: ResumeTailorRequest) =>
       request<TailoredResumeResult>(`/api/resumes/${id}/tailored-resume`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     createResumeVersion: (id: string, body: ResumeVersionCreateRequest) =>
@@ -124,10 +325,10 @@ export const api = {
       }),
 
     getResumeVersions: (id: string) =>
-      request<ResumeVersion[]>(`/api/resumes/${id}/versions`),
+      request<ResumeVersion[]>(`/api/resumes/${id}/versions`, { deduplicate: true }),
 
     getResumeVersion: (versionId: string) =>
-      request<ResumeVersion>(`/api/resumes/versions/${versionId}`),
+      request<ResumeVersion>(`/api/resumes/versions/${versionId}`, { deduplicate: true }),
 
     updateResumeVersion: (versionId: string, body: ResumeVersionUpdateRequest) =>
       request<ResumeVersion>(`/api/resumes/versions/${versionId}`, {
@@ -142,13 +343,13 @@ export const api = {
       request<ResumeVersion>(`/api/resumes/versions/${versionId}/primary`, { method: 'PATCH' }),
 
     getMultiJd: (id: string) =>
-      request<MultiJdResult>(`/api/resumes/${id}/multi-jd`),
+      request<MultiJdResult>(`/api/resumes/${id}/multi-jd`, { deduplicate: true }),
 
     getLatestCoverLetter: (id: string) =>
-      request<CoverLetter>(`/api/resumes/${id}/cover-letter`),
+      request<CoverLetter>(`/api/resumes/${id}/cover-letter`, { deduplicate: true }),
 
     getTipFeedback: (id: string) =>
-      request<Record<string, 'up' | 'down'>>(`/api/resumes/${id}/tip-feedback`),
+      request<Record<string, 'up' | 'down'>>(`/api/resumes/${id}/tip-feedback`, { deduplicate: true }),
 
     saveTipFeedback: (id: string, body: Record<string, 'up' | 'down'>) =>
       request<void>(`/api/resumes/${id}/tip-feedback`, {
@@ -174,11 +375,12 @@ export const api = {
       request<LinkedInProfileAnalysis>('/api/linkedin/analyze', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
-    list: () => request<LinkedInProfile[]>('/api/linkedin'),
+    list: () => request<LinkedInProfile[]>('/api/linkedin', { deduplicate: true }),
 
-    get: (id: string) => request<LinkedInProfile>(`/api/linkedin/${id}`),
+    get: (id: string) => request<LinkedInProfile>(`/api/linkedin/${id}`, { deduplicate: true }),
 
     delete: (id: string) =>
       request<void>(`/api/linkedin/${id}`, { method: 'DELETE' }),
@@ -187,6 +389,7 @@ export const api = {
       request<LinkedInProfileAnalysis>(`/api/linkedin/${id}/reanalyze`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
   },
 
@@ -200,9 +403,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    list: () => request<CoverLetterTemplate[]>('/api/cover-letter-templates'),
+    list: () => request<CoverLetterTemplate[]>('/api/cover-letter-templates', { deduplicate: true }),
 
-    get: (id: string) => request<CoverLetterTemplate>(`/api/cover-letter-templates/${id}`),
+    get: (id: string) => request<CoverLetterTemplate>(`/api/cover-letter-templates/${id}`, { deduplicate: true }),
 
     update: (id: string, body: CoverLetterTemplateUpdateRequest) =>
       request<CoverLetterTemplate>(`/api/cover-letter-templates/${id}`, {
@@ -242,9 +445,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    list: () => request<Reference[]>('/api/references'),
+    list: () => request<Reference[]>('/api/references', { deduplicate: true }),
 
-    get: (id: string) => request<Reference>(`/api/references/${id}`),
+    get: (id: string) => request<Reference>(`/api/references/${id}`, { deduplicate: true }),
 
     update: (id: string, body: {
       name?: string;
@@ -277,7 +480,7 @@ export const api = {
   // ========================================================================
   share: {
     getReport: (token: string) =>
-      request<SharedReport>(`/api/share/${token}`),
+      request<SharedReport>(`/api/share/${token}`, { deduplicate: true }),
     submitFeedback: (token: string, body: { name: string; comment: string; rating?: number }) =>
       request<SharedFeedback>(`/api/share/${token}/feedback`, {
         method: 'POST',
@@ -295,9 +498,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    list: () => request<CaseStudyListItem[]>('/api/case-studies'),
+    list: () => request<CaseStudyListItem[]>('/api/case-studies', { deduplicate: true }),
 
-    get: (id: string) => request<CaseStudyDetail>(`/api/case-studies/${id}`),
+    get: (id: string) => request<CaseStudyDetail>(`/api/case-studies/${id}`, { deduplicate: true }),
 
     update: (id: string, body: CaseStudyUpdateRequest) =>
       request<CaseStudyDetail>(`/api/case-studies/${id}`, {
@@ -312,6 +515,7 @@ export const api = {
       request<CaseStudyDetail>('/api/case-studies/generate', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
   },
 
@@ -319,9 +523,9 @@ export const api = {
   // PORTFOLIO
   // ========================================================================
   portfolio: {
-    list: () => request<Project[]>('/api/portfolio'),
+    list: () => request<Project[]>('/api/portfolio', { deduplicate: true }),
 
-    get: (id: string) => request<Project>(`/api/portfolio/${id}`),
+    get: (id: string) => request<Project>(`/api/portfolio/${id}`, { deduplicate: true }),
 
     create: (body: {
       title: string;
@@ -370,23 +574,22 @@ export const api = {
         method: 'POST',
         body: formData,
         isFormData: true,
+        timeout: 120000,
       }),
 
-    get: (id: string) => request<BatchItemResponse>(`/api/batches/${id}`),
+    get: (id: string) => request<BatchItemResponse>(`/api/batches/${id}`, { deduplicate: true }),
   },
 
   // ========================================================================
   // JOBS
   // ========================================================================
   jobs: {
-    search: (body: JobSearchRequest) => {
-      const signal = AbortSignal.timeout(30000);
-      return request<JobSearchResult>('/api/jobs/search', {
+    search: (body: JobSearchRequest) =>
+      request<JobSearchResult>('/api/jobs/search', {
         method: 'POST',
         body: JSON.stringify(body),
-        signal,
-      });
-    },
+        timeout: 30000,
+      }),
 
     list: (params?: JobListRequest) => {
       const searchParams = new URLSearchParams();
@@ -396,19 +599,26 @@ export const api = {
       if (params?.limit) searchParams.set('limit', String(params.limit));
       if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
       if (params?.sortOrder) searchParams.set('sortOrder', params.sortOrder);
+      if (params?.source) searchParams.set('source', params.source);
+      if (params?.isBookmarked !== undefined) searchParams.set('isBookmarked', String(params.isBookmarked));
+      if (params?.jobType) searchParams.set('jobType', params.jobType);
+      if (params?.remoteType) searchParams.set('remoteType', params.remoteType);
+      if (params?.experienceLevel) searchParams.set('experienceLevel', params.experienceLevel);
+      if (params?.jobFunction) searchParams.set('jobFunction', params.jobFunction);
       const query = searchParams.toString();
       return request<{ jobs: Job[]; pagination: JobSearchResult['pagination'] }>(
         `/api/jobs${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
-    get: (id: string) => request<Job>(`/api/jobs/${id}`),
+    get: (id: string) => request<Job>(`/api/jobs/${id}`, { deduplicate: true }),
 
     getDetails: (id: string) =>
-      request<JobDetailsResponse>(`/api/jobs/${id}/details`),
+      request<JobDetailsResponse>(`/api/jobs/${id}/details`, { deduplicate: true }),
 
     toggleBookmark: (id: string) =>
-      request<{ isBookmarked: boolean }>(`/api/jobs/${id}/bookmark`, { method: 'POST' }),
+      request<{ isBookmarked: boolean }>(`/api/jobs/${id}/bookmark`, { method: 'PATCH' }),
 
     addTags: (id: string, tags: string[]) =>
       request<Job>(`/api/jobs/${id}/tags`, {
@@ -426,34 +636,36 @@ export const api = {
       request<JobMatchResult>(`/api/jobs/${jobId}/match`, {
         method: 'POST',
         body: JSON.stringify({ resumeId }),
+        timeout: 30000,
       }),
 
     batchMatch: (jobIds: string[], resumeId: string) =>
       request<JobMatchResult[]>(`/api/jobs/batch-match`, {
         method: 'POST',
         body: JSON.stringify({ jobIds, resumeId }),
+        timeout: 60000,
       }),
 
     savedSearches: {
       create: (body: SavedSearchCreateRequest) =>
-        request<SavedSearch>('/api/jobs/saved-searches', {
+        request<SavedSearch>('/api/jobs/searches', {
           method: 'POST',
           body: JSON.stringify(body),
         }),
 
-      list: () => request<SavedSearch[]>('/api/jobs/saved-searches'),
+      list: () => request<SavedSearch[]>('/api/jobs/searches', { deduplicate: true }),
 
       update: (id: string, body: SavedSearchUpdateRequest) =>
-        request<SavedSearch>(`/api/jobs/saved-searches/${id}`, {
+        request<SavedSearch>(`/api/jobs/searches/${id}`, {
           method: 'PATCH',
           body: JSON.stringify(body),
         }),
 
       delete: (id: string) =>
-        request<void>(`/api/jobs/saved-searches/${id}`, { method: 'DELETE' }),
+        request<void>(`/api/jobs/searches/${id}`, { method: 'DELETE' }),
 
       run: (id: string) =>
-        request<JobSearchResult>(`/api/jobs/saved-searches/${id}/run`, { method: 'POST' }),
+        request<JobSearchResult>(`/api/jobs/searches/${id}/run`, { method: 'POST', timeout: 30000 }),
     },
 
     isBookmarked: (jobIds: string[]) =>
@@ -488,6 +700,7 @@ export const api = {
       const query = sp.toString();
       return request<{ applications: Array<{ id: string; companyName: string; roleTitle: string; status: string; appliedAt?: string; company?: { name: string } }>; pagination: { page: number; limit: number; total: number; totalPages: number } }>(
         `/api/applications${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
@@ -533,7 +746,7 @@ export const api = {
           createdAt: string;
           updatedAt: string;
         };
-      }>(`/api/applications/${id}`),
+      }>(`/api/applications/${id}`, { deduplicate: true }),
 
     update: (id: string, body: ApplicationUpdateRequest) =>
       request<{ id: string; companyName: string; roleTitle: string; status: string; updatedAt: string }>(
@@ -563,7 +776,7 @@ export const api = {
         occurredAt: string;
         outcome?: string;
         createdAt: string;
-      }>>(`/api/applications/${id}/comms`),
+      }>>(`/api/applications/${id}/comms`, { deduplicate: true }),
 
     addComm: (id: string, body: CommunicationLogCreateRequest) =>
       request<{
@@ -589,7 +802,7 @@ export const api = {
         notes?: string;
         requestedAt?: string;
         respondedAt?: string;
-      }>(`/api/applications/${id}/referral`),
+      }>(`/api/applications/${id}/referral`, { deduplicate: true }),
 
     upsertReferral: (id: string, body: ReferralUpsertRequest) =>
       request<{
@@ -612,18 +825,18 @@ export const api = {
       if (params?.endDate) sp.set('endDate', params.endDate);
       const query = sp.toString();
       return request<{
-        totalApplications: number;
-        applicationsByStatus: Record<string, number>;
-        applicationsByMonth: Array<{ month: string; count: number }>;
-        topStrengths: [string, number][];
-        topWeaknesses: [string, number][];
-        conversionRate: number;
-        averageTimeToOffer: number;
-        interviewsByStage: Record<string, number>;
-        sourceBreakdown: Record<string, number>;
-        salaryOffers: Array<{ company: string; baseSalary: number; totalComp: number }>;
-        timeline: Array<{ date: string; event: string; company: string }>;
-      }>(`/api/applications/analytics${query ? `?${query}` : ''}`);
+        total: number;
+        byStatus: Record<string, number>;
+        bySource: Record<string, number>;
+        avgDaysToOffer: number | null;
+        conversionRates: {
+          appliedToScreen: number;
+          screenToInterview: number;
+          interviewToOffer: number;
+          appliedToOffer: number;
+          overallSuccess: number;
+        };
+      }>(`/api/applications/analytics${query ? `?${query}` : ''}`, { deduplicate: true });
     },
 
     pipeline: () =>
@@ -635,7 +848,7 @@ export const api = {
         appliedAt?: string;
         nextActionAt?: string;
         company?: { name: string };
-      }>>('/api/applications/pipeline'),
+      }>>('/api/applications/pipeline', { deduplicate: true }),
   },
 
   // ========================================================================
@@ -647,15 +860,17 @@ export const api = {
       request<CompanyBriefing>('/api/interview-prep/briefing', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     listBriefings: () =>
       request<Array<{ id: string; companyName: string; roleTitle: string; createdAt: string }>>(
         '/api/interview-prep/briefings',
+        { deduplicate: true },
       ),
 
     getBriefing: (id: string) =>
-      request<CompanyBriefing>(`/api/interview-prep/briefing/${id}`),
+      request<CompanyBriefing>(`/api/interview-prep/briefing/${id}`, { deduplicate: true }),
 
     deleteBriefing: (id: string) =>
       request<void>(`/api/interview-prep/briefing/${id}`, { method: 'DELETE' }),
@@ -665,15 +880,17 @@ export const api = {
       request<TechnicalAssessment>('/api/interview-prep/technical', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     listTechnicals: () =>
       request<Array<{ id: string; roleTitle: string; difficulty: string; createdAt: string }>>(
         '/api/interview-prep/technicals',
+        { deduplicate: true },
       ),
 
     getTechnical: (id: string) =>
-      request<TechnicalAssessment>(`/api/interview-prep/technical/${id}`),
+      request<TechnicalAssessment>(`/api/interview-prep/technical/${id}`, { deduplicate: true }),
 
     deleteTechnical: (id: string) =>
       request<void>(`/api/interview-prep/technical/${id}`, { method: 'DELETE' }),
@@ -683,15 +900,17 @@ export const api = {
       request<BehavioralQuestionBank>('/api/interview-prep/behavioral', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     listBehaviorals: () =>
       request<Array<{ id: string; roleTitle: string; competencies: string[]; createdAt: string }>>(
         '/api/interview-prep/behaviorals',
+        { deduplicate: true },
       ),
 
     getBehavioral: (id: string) =>
-      request<BehavioralQuestionBank>(`/api/interview-prep/behavioral/${id}`),
+      request<BehavioralQuestionBank>(`/api/interview-prep/behavioral/${id}`, { deduplicate: true }),
 
     deleteBehavioral: (id: string) =>
       request<void>(`/api/interview-prep/behavioral/${id}`, { method: 'DELETE' }),
@@ -701,20 +920,23 @@ export const api = {
       request<MockInterviewSession>('/api/interview-prep/mock-interview', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     listMockInterviews: () =>
       request<Array<{ id: string; roleTitle: string; company?: string; status: string; totalQuestions: number; createdAt: string }>>(
         '/api/interview-prep/mock-interviews',
+        { deduplicate: true },
       ),
 
     getMockInterview: (id: string) =>
-      request<MockInterviewSession>(`/api/interview-prep/mock-interview/${id}`),
+      request<MockInterviewSession>(`/api/interview-prep/mock-interview/${id}`, { deduplicate: true }),
 
     sendMockMessage: (id: string, body: MockInterviewMessageRequest) =>
       request<MockInterviewSession>(`/api/interview-prep/mock-interview/${id}/message`, {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     deleteMockInterview: (id: string) =>
@@ -725,15 +947,17 @@ export const api = {
       request<InterviewCheatSheet>('/api/interview-prep/cheat-sheet', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     listCheatSheets: () =>
       request<Array<{ id: string; companyName: string; roleTitle: string; createdAt: string }>>(
         '/api/interview-prep/cheat-sheets',
+        { deduplicate: true },
       ),
 
     getCheatSheet: (id: string) =>
-      request<InterviewCheatSheet>(`/api/interview-prep/cheat-sheet/${id}`),
+      request<InterviewCheatSheet>(`/api/interview-prep/cheat-sheet/${id}`, { deduplicate: true }),
 
     deleteCheatSheet: (id: string) =>
       request<void>(`/api/interview-prep/cheat-sheet/${id}`, { method: 'DELETE' }),
@@ -753,14 +977,15 @@ export const api = {
       const query = sp.toString();
       return request<InterviewScheduleEntry[]>(
         `/api/interview-prep/schedule${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
     getUpcoming: () =>
-      request<InterviewScheduleEntry[]>('/api/interview-prep/schedule/upcoming'),
+      request<InterviewScheduleEntry[]>('/api/interview-prep/schedule/upcoming', { deduplicate: true }),
 
     getScheduleEntry: (id: string) =>
-      request<InterviewScheduleEntry>(`/api/interview-prep/schedule/${id}`),
+      request<InterviewScheduleEntry>(`/api/interview-prep/schedule/${id}`, { deduplicate: true }),
 
     updateSchedule: (id: string, body: ScheduleUpdateRequest) =>
       request<InterviewScheduleEntry>(`/api/interview-prep/schedule/${id}`, {
@@ -790,10 +1015,11 @@ export const api = {
       const query = sp.toString();
       return request<InterviewNote[]>(
         `/api/interview-process/notes${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
-    getNote: (id: string) => request<InterviewNote>(`/api/interview-process/notes/${id}`),
+    getNote: (id: string) => request<InterviewNote>(`/api/interview-process/notes/${id}`, { deduplicate: true }),
 
     updateNote: (id: string, body: InterviewNoteUpdateRequest) =>
       request<InterviewNote>(`/api/interview-process/notes/${id}`, {
@@ -812,7 +1038,7 @@ export const api = {
       }),
 
     listFeedbacks: (noteId: string) =>
-      request<InterviewerFeedback[]>(`/api/interview-process/notes/${noteId}/feedback`),
+      request<InterviewerFeedback[]>(`/api/interview-process/notes/${noteId}/feedback`, { deduplicate: true }),
 
     updateFeedback: (id: string, body: FeedbackUpdateRequest) =>
       request<InterviewerFeedback>(`/api/interview-process/feedback/${id}`, {
@@ -837,10 +1063,11 @@ export const api = {
       const query = sp.toString();
       return request<FollowUpEmail[]>(
         `/api/interview-process/follow-up-emails${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
-    getFollowUpEmail: (id: string) => request<FollowUpEmail>(`/api/interview-process/follow-up-emails/${id}`),
+    getFollowUpEmail: (id: string) => request<FollowUpEmail>(`/api/interview-process/follow-up-emails/${id}`, { deduplicate: true }),
 
     updateFollowUpEmail: (id: string, body: FollowUpEmailUpdateRequest) =>
       request<FollowUpEmail>(`/api/interview-process/follow-up-emails/${id}`, {
@@ -855,6 +1082,7 @@ export const api = {
       request<FollowUpEmail>('/api/interview-process/follow-up-emails/generate', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     // Panel Interviews
@@ -872,10 +1100,11 @@ export const api = {
       const query = sp.toString();
       return request<PanelInterview[]>(
         `/api/interview-process/panel-interviews${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
 
-    getPanelInterview: (id: string) => request<PanelInterview>(`/api/interview-process/panel-interviews/${id}`),
+    getPanelInterview: (id: string) => request<PanelInterview>(`/api/interview-process/panel-interviews/${id}`, { deduplicate: true }),
 
     updatePanelInterview: (id: string, body: PanelInterviewUpdateRequest) =>
       request<PanelInterview>(`/api/interview-process/panel-interviews/${id}`, {
@@ -893,9 +1122,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listCaseStudies: () => request<CaseStudyListItem[]>('/api/interview-process/case-studies'),
+    listCaseStudies: () => request<CaseStudyListItem[]>('/api/interview-process/case-studies', { deduplicate: true }),
 
-    getCaseStudy: (id: string) => request<CaseStudyDetail>(`/api/interview-process/case-studies/${id}`),
+    getCaseStudy: (id: string) => request<CaseStudyDetail>(`/api/interview-process/case-studies/${id}`, { deduplicate: true }),
 
     updateCaseStudy: (id: string, body: CaseStudyUpdateRequest) =>
       request<CaseStudyDetail>(`/api/interview-process/case-studies/${id}`, {
@@ -910,6 +1139,7 @@ export const api = {
       request<CaseStudyDetail>('/api/interview-process/case-studies/generate', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 60000,
       }),
 
     // Analytics
@@ -920,6 +1150,7 @@ export const api = {
       const query = sp.toString();
       return request<InterviewPerformanceAnalytics>(
         `/api/interview-process/analytics${query ? `?${query}` : ''}`,
+        { deduplicate: true },
       );
     },
   },
@@ -935,9 +1166,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listComparisons: () => request<OfferComparisonItem[]>('/api/offer-negotiation/comparisons'),
+    listComparisons: () => request<OfferComparisonItem[]>('/api/offer-negotiation/comparisons', { deduplicate: true }),
 
-    getComparison: (id: string) => request<OfferComparisonItem>(`/api/offer-negotiation/comparisons/${id}`),
+    getComparison: (id: string) => request<OfferComparisonItem>(`/api/offer-negotiation/comparisons/${id}`, { deduplicate: true }),
 
     deleteComparison: (id: string) =>
       request<void>(`/api/offer-negotiation/comparisons/${id}`, { method: 'DELETE' }),
@@ -953,11 +1184,12 @@ export const api = {
       request<NegotiationCoach>('/api/offer-negotiation/coach', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
-    listCoaches: () => request<NegotiationCoach[]>('/api/offer-negotiation/coach'),
+    listCoaches: () => request<NegotiationCoach[]>('/api/offer-negotiation/coach', { deduplicate: true }),
 
-    getCoach: (id: string) => request<NegotiationCoach>(`/api/offer-negotiation/coach/${id}`),
+    getCoach: (id: string) => request<NegotiationCoach>(`/api/offer-negotiation/coach/${id}`, { deduplicate: true }),
 
     deleteCoach: (id: string) =>
       request<void>(`/api/offer-negotiation/coach/${id}`, { method: 'DELETE' }),
@@ -967,6 +1199,7 @@ export const api = {
       request<EquityCalculationResult>('/api/offer-negotiation/equity', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     // Benefits Analyzer
@@ -974,6 +1207,7 @@ export const api = {
       request<BenefitsAnalysisResult>('/api/offer-negotiation/benefits', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
     // Decision Framework
@@ -983,9 +1217,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listDecisions: () => request<OfferDecision[]>('/api/offer-negotiation/decision'),
+    listDecisions: () => request<OfferDecision[]>('/api/offer-negotiation/decision', { deduplicate: true }),
 
-    getDecision: (id: string) => request<OfferDecision>(`/api/offer-negotiation/decision/${id}`),
+    getDecision: (id: string) => request<OfferDecision>(`/api/offer-negotiation/decision/${id}`, { deduplicate: true }),
 
     deleteDecision: (id: string) =>
       request<void>(`/api/offer-negotiation/decision/${id}`, { method: 'DELETE' }),
@@ -1001,11 +1235,12 @@ export const api = {
       request<ResignationLetter>('/api/offer-negotiation/resignation', {
         method: 'POST',
         body: JSON.stringify(body),
+        timeout: 30000,
       }),
 
-    listResignationLetters: () => request<ResignationLetter[]>('/api/offer-negotiation/resignation'),
+    listResignationLetters: () => request<ResignationLetter[]>('/api/offer-negotiation/resignation', { deduplicate: true }),
 
-    getResignationLetter: (id: string) => request<ResignationLetter>(`/api/offer-negotiation/resignation/${id}`),
+    getResignationLetter: (id: string) => request<ResignationLetter>(`/api/offer-negotiation/resignation/${id}`, { deduplicate: true }),
 
     deleteResignationLetter: (id: string) =>
       request<void>(`/api/offer-negotiation/resignation/${id}`, { method: 'DELETE' }),
@@ -1022,9 +1257,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listPlans: () => request<OnboardingPlan[]>('/api/post-onboarding/plans'),
+    listPlans: () => request<OnboardingPlan[]>('/api/post-onboarding/plans', { deduplicate: true }),
 
-    getPlan: (id: string) => request<OnboardingPlan>(`/api/post-onboarding/plans/${id}`),
+    getPlan: (id: string) => request<OnboardingPlan>(`/api/post-onboarding/plans/${id}`, { deduplicate: true }),
 
     deletePlan: (id: string) =>
       request<void>(`/api/post-onboarding/plans/${id}`, { method: 'DELETE' }),
@@ -1036,9 +1271,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listChecklists: () => request<OnboardingChecklist[]>('/api/post-onboarding/checklists'),
+    listChecklists: () => request<OnboardingChecklist[]>('/api/post-onboarding/checklists', { deduplicate: true }),
 
-    getChecklist: (id: string) => request<OnboardingChecklist>(`/api/post-onboarding/checklists/${id}`),
+    getChecklist: (id: string) => request<OnboardingChecklist>(`/api/post-onboarding/checklists/${id}`, { deduplicate: true }),
 
     updateChecklistItem: (id: string, itemId: string, body: ChecklistItemUpdateRequest) =>
       request<OnboardingChecklist>(`/api/post-onboarding/checklists/${id}/items/${itemId}`, {
@@ -1056,9 +1291,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listAlignments: () => request<ManagerAlignment[]>('/api/post-onboarding/alignments'),
+    listAlignments: () => request<ManagerAlignment[]>('/api/post-onboarding/alignments', { deduplicate: true }),
 
-    getAlignment: (id: string) => request<ManagerAlignment>(`/api/post-onboarding/alignments/${id}`),
+    getAlignment: (id: string) => request<ManagerAlignment>(`/api/post-onboarding/alignments/${id}`, { deduplicate: true }),
 
     deleteAlignment: (id: string) =>
       request<void>(`/api/post-onboarding/alignments/${id}`, { method: 'DELETE' }),
@@ -1070,9 +1305,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listNetworks: () => request<NetworkMap[]>('/api/post-onboarding/network'),
+    listNetworks: () => request<NetworkMap[]>('/api/post-onboarding/network', { deduplicate: true }),
 
-    getNetwork: (id: string) => request<NetworkMap>(`/api/post-onboarding/network/${id}`),
+    getNetwork: (id: string) => request<NetworkMap>(`/api/post-onboarding/network/${id}`, { deduplicate: true }),
 
     deleteNetwork: (id: string) =>
       request<void>(`/api/post-onboarding/network/${id}`, { method: 'DELETE' }),
@@ -1084,9 +1319,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listSkills: () => request<SkillRefresh[]>('/api/post-onboarding/skills'),
+    listSkills: () => request<SkillRefresh[]>('/api/post-onboarding/skills', { deduplicate: true }),
 
-    getSkill: (id: string) => request<SkillRefresh>(`/api/post-onboarding/skills/${id}`),
+    getSkill: (id: string) => request<SkillRefresh>(`/api/post-onboarding/skills/${id}`, { deduplicate: true }),
 
     deleteSkill: (id: string) =>
       request<void>(`/api/post-onboarding/skills/${id}`, { method: 'DELETE' }),
@@ -1098,9 +1333,9 @@ export const api = {
         body: JSON.stringify(body),
       }),
 
-    listTrackers: () => request<First90DaysTracker[]>('/api/post-onboarding/tracker'),
+    listTrackers: () => request<First90DaysTracker[]>('/api/post-onboarding/tracker', { deduplicate: true }),
 
-    getTracker: (id: string) => request<First90DaysTracker>(`/api/post-onboarding/tracker/${id}`),
+    getTracker: (id: string) => request<First90DaysTracker>(`/api/post-onboarding/tracker/${id}`, { deduplicate: true }),
 
     updateTracker: (id: string, body: TrackerUpdateRequest) =>
       request<First90DaysTracker>(`/api/post-onboarding/tracker/${id}`, {
@@ -1121,7 +1356,7 @@ export const api = {
         user: { id: string; name: string; email: string; image?: string; headline?: string; summary?: string; location?: string; linkedinUrl?: string; githubUrl?: string; websiteUrl?: string; phone?: string; onboardingCompleted: boolean };
         profile: { id: string; userId: string; education?: Array<{ degree: string; field?: string; school: string; location?: string; startDate?: string; endDate?: string; gpa?: string }>; experience?: Array<{ title: string; company: string; location?: string; startDate: string; endDate?: string; current?: boolean; highlights?: string[]; description?: string }>; projects?: Array<{ name: string; description: string; technologies: string[]; url?: string; startDate?: string; endDate?: string }>; skills: string[]; certifications?: Array<{ name: string; issuer?: string; date?: string; url?: string }>; languages: string[] };
         completion: { percentage: number; missingFields: string[] };
-      }>('/api/profile'),
+      }>('/api/profile', { deduplicate: true }),
 
     update: (data: ProfileUpdateRequest) =>
       request<{ id: string; userId: string; education?: Array<{ degree: string; field?: string; school: string; location?: string; startDate?: string; endDate?: string; gpa?: string }>; experience?: Array<{ title: string; company: string; location?: string; startDate: string; endDate?: string; current?: boolean; highlights?: string[]; description?: string }>; projects?: Array<{ name: string; description: string; technologies: string[]; url?: string; startDate?: string; endDate?: string }>; skills: string[]; certifications?: Array<{ name: string; issuer?: string; date?: string; url?: string }>; languages: string[] }>('/api/profile', {
@@ -1142,4 +1377,16 @@ export const api = {
 
 export function getUploadUrl(endpoint: string): string {
   return `${API_BASE}${endpoint}`;
+}
+
+// Network status utilities
+export let isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => { isOnline = true; });
+  window.addEventListener('offline', () => { isOnline = false; });
+}
+
+export function checkNetworkStatus(): boolean {
+  return isOnline;
 }

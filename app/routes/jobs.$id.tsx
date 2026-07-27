@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, Button, Modal, ModalFooter, useToastHelpers, ScoreBadge } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Job Details" },
+  { title: "Career Autopilot | Job Details" },
 ];
 
 const SOURCE_STYLES: Record<string, { bg: string; text: string; dot: string }> = {

@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Offer Comparison" },
+  { title: "Career Autopilot | Offer Comparison" },
   { name: "description", content: "Side-by-side offer comparison with weighted decision matrix" },
 ];
 

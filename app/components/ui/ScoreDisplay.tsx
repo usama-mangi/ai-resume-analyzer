@@ -81,74 +81,49 @@ export interface ScoreCircleProps {
 }
 
 const circleSizes = {
-  sm: { size: 40, stroke: 4, font: "text-xs" },
-  md: { size: 56, stroke: 5, font: "text-sm" },
-  lg: { size: 72, stroke: 6, font: "text-base" },
-  xl: { size: 96, stroke: 8, font: "text-lg" },
+  sm: 40,
+  md: 48,
+  lg: 64,
+  xl: 80,
 };
 
 export function ScoreCircle({ score, size = "md", showLabel = true, strokeWidth, className }: ScoreCircleProps) {
   const config = getScoreConfig(score);
-  const { size: diameter, stroke: defaultStroke, font } = circleSizes[size];
-  const stroke = strokeWidth ?? defaultStroke;
-  const radius = (diameter - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - score / 100);
-
-  const gradientId = `score-gradient-${config.color}-${size}`;
+  const outer = circleSizes[size];
 
   return (
-    <div className={cn("inline-flex flex-col items-center", className)}>
-      <svg width={diameter} height={diameter} className="transform -rotate-90">
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            {config.color === "green" && (
-              <>
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="100%" stopColor="#10b981" />
-              </>
-            )}
-            {config.color === "yellow" && (
-              <>
-                <stop offset="0%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#eab308" />
-              </>
-            )}
-            {config.color === "red" && (
-              <>
-                <stop offset="0%" stopColor="#dc2626" />
-                <stop offset="100%" stopColor="#f59e0b" />
-              </>
-            )}
-          </linearGradient>
-        </defs>
-        <circle
-          cx={diameter / 2}
-          cy={diameter / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={stroke}
-          className="text-gray-100 dark:text-gray-800"
-        />
-        <circle
-          cx={diameter / 2}
-          cy={diameter / 2}
-          r={radius}
-          fill="none"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
-          style={{ transformOrigin: "center" }}
-        />
-      </svg>
-      {showLabel && (
-        <div className={cn("mt-2", font, "font-bold", config.color === "green" && "text-green-600", config.color === "yellow" && "text-yellow-600", config.color === "red" && "text-red-600")}>
+    <div className={cn("inline-flex flex-col items-center gap-1.5", className)}>
+      <div
+        className={cn(
+          "relative flex items-center justify-center rounded-full border",
+          config.color === "green" && "bg-emerald-50 border-emerald-200",
+          config.color === "yellow" && "bg-amber-50 border-amber-200",
+          config.color === "red" && "bg-red-50 border-red-200",
+        )}
+        style={{ width: outer, height: outer }}
+      >
+        <span
+          className={cn(
+            "font-bold tabular-nums leading-none",
+            config.color === "green" && "text-emerald-700",
+            config.color === "yellow" && "text-amber-700",
+            config.color === "red" && "text-red-600",
+          )}
+        >
           {score}
-        </div>
+        </span>
+      </div>
+      {showLabel && (
+        <span
+          className={cn(
+            "text-[10px] font-medium leading-none",
+            config.color === "green" && "text-emerald-600",
+            config.color === "yellow" && "text-amber-600",
+            config.color === "red" && "text-red-500",
+          )}
+        >
+          {config.label}
+        </span>
       )}
     </div>
   );

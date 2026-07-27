@@ -52,7 +52,8 @@ export default function Applications() {
     }
   };
 
-  async function handleCreate() {
+  async function handleCreate(e?: React.FormEvent) {
+    e?.preventDefault();
     if (!formData.companyName.trim() || !formData.roleTitle.trim()) return;
     try {
       await api.applications.create({
@@ -155,7 +156,7 @@ export default function Applications() {
                       <p className="text-sm font-medium text-gray-900 truncate">{app.companyName}</p>
                       <p className="text-xs text-gray-500 truncate">{app.roleTitle}</p>
                       <div className="flex items-center justify-between mt-1.5">
-                        <span className="text-[10px] text-gray-400">{formatDate(app.appliedAt || app.appliedAt)}</span>
+                        <span className="text-[10px] text-gray-400">{formatDate(app.appliedAt || undefined)}</span>
                         {getNextStatuses(app.status).length > 0 && (
                           <select onClick={(e) => e.stopPropagation()} onChange={(e) => { e.preventDefault(); handleStatusChange(app.id, e.target.value); }} className="text-[10px] border border-gray-200 rounded px-1 py-0.5 text-gray-500 bg-gray-50" value="">
                             <option value="" disabled>Move</option>

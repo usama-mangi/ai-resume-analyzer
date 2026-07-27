@@ -6,13 +6,16 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   label?: string;
   hint?: string;
+  maxLength?: number;
+  showCharacterCount?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error, label, hint, id, type = "text", ...props }, ref) => {
+  ({ className, error, label, hint, id, type = "text", maxLength, showCharacterCount = false, ...props }, ref) => {
     const inputId = id || props.name;
     const errorId = error ? `${inputId}-error` : undefined;
     const hintId = hint ? `${inputId}-hint` : undefined;
+    const counterId = showCharacterCount && maxLength ? `${inputId}-counter` : undefined;
 
     return (
       <div className="w-full">
@@ -21,24 +24,37 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </Label>
         )}
-        <input
-          ref={ref}
-          id={inputId}
-          type={type}
-          className={cn(
-            "w-full px-3.5 py-2 rounded-lg text-sm text-gray-900 bg-white border transition-all duration-150",
-            "placeholder:text-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
-            "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
-            error
-              ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500/20"
-              : "border-gray-200 hover:border-gray-300",
-            className,
-          )}
-          aria-invalid={error ? "true" : "false"}
-          aria-describedby={cn(errorId, hintId)}
-          {...props}
-        />
+        <div className="relative">
+          <input
+            ref={ref}
+            id={inputId}
+            type={type}
+            maxLength={maxLength}
+            className={cn(
+              "w-full px-3.5 py-2 rounded-lg text-sm text-gray-900 bg-white border transition-all duration-150",
+              "placeholder:text-gray-400",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
+              "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
+              error
+                ? "border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500/20"
+                : "border-gray-200 hover:border-gray-300",
+              showCharacterCount && "pr-16",
+              className,
+            )}
+            aria-invalid={error ? "true" : "false"}
+            aria-describedby={cn(errorId, hintId, counterId)}
+            {...props}
+          />
+{showCharacterCount && maxLength && (
+              <span
+                id={counterId}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none"
+                aria-live="polite"
+              >
+                {typeof props.value === 'string' ? props.value.length : Array.isArray(props.value) ? props.value.length : 0}/{maxLength}
+              </span>
+            )}
+        </div>
         {error && (
           <p id={errorId} className="mt-1.5 text-sm text-red-600" role="alert">
             {error}

@@ -7,7 +7,7 @@ import type { Resume, SalaryRangeResult, SalaryEstimatedRange } from "types";
 import { PageShell, PageHeader, Button, Input, Card } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Salary Range Estimation" },
+  { title: "Career Autopilot | Salary Range Estimation" },
   { name: "description", content: "Estimate salary range based on your resume and market data" },
 ];
 
@@ -160,7 +160,7 @@ export default function SalaryEstimate() {
       {result && !generating && (
         <div className="w-full max-w-4xl flex flex-col gap-6 animate-in fade-in duration-1000">
           <div className="flex flex-row gap-3 justify-end">
-            <Link to={`/resume/${id}`} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <Link to={`/resumes/${id}`} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
               Back to Review
             </Link>

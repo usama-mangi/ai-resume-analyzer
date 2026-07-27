@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Reference Manager" },
+  { title: "Career Autopilot | Reference Manager" },
   { name: "description", content: "Track references, contact info, and request status per application" },
 ];
 

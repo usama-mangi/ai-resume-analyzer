@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Onboarding Checklist" },
+  { title: "Career Autopilot | Onboarding Checklist" },
   { name: "description", content: "Create a structured onboarding checklist with milestones, learning goals, and key stakeholders" },
 ];
 

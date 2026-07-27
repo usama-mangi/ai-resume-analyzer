@@ -6,7 +6,7 @@ import { PageShell, PageHeader, Button, Card, useToastHelpers } from "~/componen
 import { Skeleton } from "~/components/Skeleton";
 
 export const meta = () => [
-  { title: "Resumind | Job Alerts" },
+  { title: "Career Autopilot | Job Alerts" },
   { name: "description", content: "Manage your job alert preferences" },
 ];
 

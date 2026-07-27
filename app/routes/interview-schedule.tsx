@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Interview Schedule" },
+  { title: "Career Autopilot | Interview Schedule" },
   { name: "description", content: "Schedule interviews, track status, and manage prep time blocks" },
 ];
 

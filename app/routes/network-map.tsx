@@ -7,7 +7,7 @@ import { PageShell, PageHeader, Button, Card, ScoreBadge, Select, Textarea, Moda
 import type { NetworkMap, NetworkContact, CoffeeChat } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Network Mapping" },
+  { title: "Career Autopilot | Network Mapping" },
   { name: "description", content: "Identify key cross-functional contacts, schedule coffee chats, and build relationship map" },
 ];
 

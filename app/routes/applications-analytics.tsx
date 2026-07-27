@@ -1,13 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useSession } from "~/lib/auth-store";
 import { api } from "~/lib/api";
-import { cn } from "~/lib/utils";
-import { PageShell, PageHeader, useToastHelpers, Card } from "~/components/ui";
-import type { ApplicationsAnalytics } from "types";
+import { PageShell, PageHeader, Card } from "~/components/ui";
+
+interface AnalyticsData {
+  total: number;
+  byStatus: Record<string, number>;
+  bySource: Record<string, number>;
+  avgDaysToOffer: number | null;
+  conversionRates: {
+    appliedToScreen: number;
+    screenToInterview: number;
+    interviewToOffer: number;
+    appliedToOffer: number;
+    overallSuccess: number;
+  };
+}
 
 export const meta = () => [
-  { title: "Resumind | Applications Analytics" },
+  { title: "Career Autopilot | Applications Analytics" },
   { name: "description", content: "Conversion funnel: Applications → Screens → Interviews → Offers → Acceptance rate" },
 ];
 
@@ -15,9 +27,8 @@ export default function ApplicationsAnalytics() {
   const { data: session, isPending } = useSession();
   const isAuthenticated = !!session;
   const navigate = useNavigate();
-  const { success: toastSuccess, error: toastError } = useToastHelpers();
 
-  const [analytics, setAnalytics] = useState<ApplicationsAnalytics | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -27,40 +38,29 @@ export default function ApplicationsAnalytics() {
     if (!isPending && !isAuthenticated) navigate("/login");
   }, [isAuthenticated, isPending, navigate]);
 
-  useEffect(() => {
-    if (isAuthenticated) loadAnalytics();
-  }, [isAuthenticated, startDate, endDate, navigate]);
-
-  async function loadAnalytics() {
+  const loadAnalytics = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.applications.analytics({
         startDate: startDate || undefined,
         endDate: endDate || undefined,
       });
-      setAnalytics(data as unknown as ApplicationsAnalytics);
+      setAnalytics(data as unknown as AnalyticsData);
     } catch (err) {
       console.error("Failed to load analytics:", err);
       setError(err instanceof Error ? err.message : "Failed to load analytics");
     } finally {
       setLoading(false);
     }
-  }
+  }, [startDate, endDate]);
 
-  // Compute top strengths and weaknesses
-  const topStrengths = analytics?.strengthFrequency
-    ? Object.entries(analytics.strengthFrequency).sort((a, b) => b[1] - a[1]).slice(0, 5)
-    : [];
-  const topWeaknesses = analytics?.weaknessFrequency
-    ? Object.entries(analytics.weaknessFrequency).sort((a, b) => b[1] - a[1]).slice(0, 5)
-    : [];
+  useEffect(() => {
+    if (isAuthenticated) loadAnalytics();
+  }, [isAuthenticated, loadAnalytics]);
 
-  function getRatingColor(rating: number) {
-    if (rating >= 4) return "bg-green-500";
-    if (rating >= 3) return "bg-blue-500";
-    if (rating >= 2) return "bg-yellow-500";
-    return "bg-red-500";
-  }
+  const topSources = analytics?.bySource
+    ? Object.entries(analytics.bySource).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    : [];
 
   if (loading) {
     return (
@@ -100,19 +100,19 @@ export default function ApplicationsAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card>
           <p className="text-sm text-gray-500">Total Applications</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.totalApplications}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.total}</p>
         </Card>
         <Card>
           <p className="text-sm text-gray-500">Applied &rarr; Offer</p>
-          <p className="text-3xl font-bold text-blue-600 mt-1">{analytics.conversionRate}%</p>
+          <p className="text-3xl font-bold text-blue-600 mt-1">{analytics.conversionRates.appliedToOffer}%</p>
         </Card>
         <Card>
           <p className="text-sm text-gray-500">Overall Success</p>
-          <p className="text-3xl font-bold text-green-600 mt-1">{analytics.conversionRate}%</p>
+          <p className="text-3xl font-bold text-green-600 mt-1">{analytics.conversionRates.overallSuccess}%</p>
         </Card>
         <Card>
           <p className="text-sm text-gray-500">Avg Days to Offer</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.averageTimeToOffer ?? "—"}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.avgDaysToOffer ?? "\u2014"}</p>
         </Card>
       </div>
 
@@ -121,16 +121,16 @@ export default function ApplicationsAnalytics() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion Funnel</h3>
         <div className="flex items-end gap-1.5 h-16">
           {[
-            { label: "Applications", value: analytics.totalApplications, color: "bg-gray-500" },
-            { label: "Screens", value: analytics.applicationsByStatus?.phone_screen || 0, color: "bg-blue-500" },
-            { label: "Interviews", value: analytics.applicationsByStatus?.interviewing || 0, color: "bg-purple-500" },
-            { label: "Offers", value: analytics.applicationsByStatus?.offer || 0, color: "bg-green-500" },
-          ].map((step, i) => {
+            { label: "Applications", value: analytics.total, color: "bg-gray-500" },
+            { label: "Screens", value: analytics.byStatus.phone_screen || 0, color: "bg-blue-500" },
+            { label: "Interviews", value: analytics.byStatus.interviewing || 0, color: "bg-purple-500" },
+            { label: "Offers", value: analytics.byStatus.offer || 0, color: "bg-green-500" },
+          ].map((step) => {
             const maxVal = Math.max(
-              analytics.totalApplications,
-              analytics.applicationsByStatus?.phone_screen || 0,
-              analytics.applicationsByStatus?.interviewing || 0,
-              analytics.applicationsByStatus?.offer || 0,
+              analytics.total,
+              analytics.byStatus.phone_screen || 0,
+              analytics.byStatus.interviewing || 0,
+              analytics.byStatus.offer || 0,
               1
             );
             return (
@@ -147,119 +147,55 @@ export default function ApplicationsAnalytics() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* By Interview Type */}
+        {/* Conversion Rates */}
         <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">By Interview Type</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion Rates</h3>
           <div className="space-y-3">
-            {Object.entries(analytics.byType || {}).map(([type, data]: [string, { count: number; avgRating: number }]) => (
-              <div key={type} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-gray-700 text-sm capitalize">{type.replace("_", " ")}</span>
-                  <span className="text-xs text-gray-400">{data.count} interview{data.count !== 1 ? "s" : ""}</span>
-                </div>
+            {[
+              { label: "Applied \u2192 Phone Screen", value: analytics.conversionRates.appliedToScreen },
+              { label: "Phone Screen \u2192 Interview", value: analytics.conversionRates.screenToInterview },
+              { label: "Interview \u2192 Offer", value: analytics.conversionRates.interviewToOffer },
+            ].map((rate) => (
+              <div key={rate.label} className="flex items-center justify-between">
+                <span className="text-sm text-gray-700">{rate.label}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={cn("h-full rounded-full", data.avgRating >= 4 ? "bg-green-500" : data.avgRating >= 3 ? "bg-blue-500" : "bg-yellow-500")} style={{ width: `${(data.avgRating / 5) * 100}%` }} />
+                    <div className="h-full rounded-full bg-blue-500" style={{ width: `${rate.value}%` }} />
                   </div>
-                  <span className="text-sm font-medium text-gray-700 w-8 text-right">{data.avgRating}</span>
+                  <span className="text-sm font-medium text-gray-700 w-12 text-right">{rate.value}%</span>
                 </div>
               </div>
             ))}
-            {Object.keys(analytics.byType || {}).length === 0 && <p className="text-sm text-gray-400">No data yet</p>}
           </div>
         </Card>
 
-        {/* By Company */}
+        {/* Top Sources */}
         <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">By Company</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Applications by Source</h3>
           <div className="space-y-3">
-            {Object.entries(analytics.byCompany || {}).map(([company, data]: [string, { count: number; avgRating: number }]) => (
-              <div key={company} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-gray-700 text-sm">{company}</span>
-                  <span className="text-xs text-gray-400">{data.count} interview{data.count !== 1 ? "s" : ""}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={cn("h-full rounded-full", data.avgRating >= 4 ? "bg-green-500" : data.avgRating >= 3 ? "bg-blue-500" : "bg-yellow-500")} style={{ width: `${(data.avgRating / 5) * 100}%` }} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700 w-8 text-right">{data.avgRating}</span>
-                </div>
+            {topSources.map(([source, count]) => (
+              <div key={source} className="flex items-center justify-between">
+                <span className="font-medium text-gray-700 text-sm capitalize">{source}</span>
+                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-lg">{count} app{count !== 1 ? "s" : ""}</span>
               </div>
             ))}
-            {Object.keys(analytics.byCompany || {}).length === 0 && <p className="text-sm text-gray-400 text-center py-6">No data yet</p>}
+            {topSources.length === 0 && <p className="text-sm text-gray-400">No data yet</p>}
           </div>
         </Card>
       </div>
 
-      {/* Strengths & Weaknesses */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Strengths</h3>
-          {topStrengths.length > 0 ? (
-            <div className="space-y-2">
-              {topStrengths.map(([strength, count]: [string, number]) => (
-                <div key={strength} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">{strength}</span>
-                  <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded-lg">{count}x</span>
-                </div>
-              ))}
+      {/* By Status Breakdown */}
+      <Card className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Applications by Status</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Object.entries(analytics.byStatus).map(([status, count]) => (
+            <div key={status} className="bg-gray-50 rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-gray-900">{count}</p>
+              <p className="text-xs text-gray-500 capitalize mt-1">{status.replace(/_/g, " ")}</p>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500">No strengths recorded yet</p>
-          )}
-        </Card>
-
-        <Card>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Areas for Improvement</h3>
-          {topWeaknesses.length > 0 ? (
-            <div className="space-y-2">
-              {topWeaknesses.map(([weakness, count]: [string, number]) => (
-                <div key={weakness} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">{weakness}</span>
-                  <span className="bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">{count}x</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">No weaknesses recorded yet</p>
-          )}
-        </Card>
-      </div>
-
-      {/* Feedback Summary */}
-      {analytics.feedbackSummary && (
-        <Card className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Interviewer Feedback Summary</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Total Feedbacks</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.feedbackSummary.totalFeedbacks}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Avg Feedback Rating</p>
-              <div className="flex items-center gap-2">
-                <p className="text-2xl font-bold text-indigo-600">{analytics.feedbackSummary.averageRating}</p>
-                <span className="text-sm text-gray-400">/5</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-2">Recommendations</p>
-              <div className="flex gap-2 flex-wrap">
-                {Object.entries(analytics.feedbackSummary.recommendationCounts).map(([rec, count]: [string, number]) => (
-                  <span key={rec} className={cn("text-xs font-medium px-2 py-1 rounded-full",
-                    rec === "strong_hire" || rec === "hire" ? "bg-green-100 text-green-700" :
-                    rec === "neutral" ? "bg-yellow-100 text-yellow-700" :
-                    "bg-red-100 text-red-700"
-                  )}>
-                    {rec.replace("_", " ")}: {count}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
+          ))}
+        </div>
+      </Card>
     </PageShell>
   );
 }

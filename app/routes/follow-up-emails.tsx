@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Follow-up Email Templates" },
+  { title: "Career Autopilot | Follow-up Email Templates" },
   { name: "description", content: "Thank-you notes, check-ins, and follow-up emails" },
 ];
 

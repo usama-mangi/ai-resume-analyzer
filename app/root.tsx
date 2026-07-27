@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { ThemeProvider } from "./lib/theme-store";
 import { ToastProvider } from "~/components/ui/Toast";
+import { NetworkStatusProvider } from "~/components/ui/NetworkStatus";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -24,7 +25,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap",
     crossOrigin: "anonymous",
   },
 ];
@@ -40,7 +41,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <NetworkStatusProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </NetworkStatusProvider>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
@@ -75,9 +78,12 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <h1 className="text-4xl font-bold text-gray-900 mb-2">{message}</h1>
         <p className="text-gray-500 mb-6">{details}</p>
         {stack && (
-          <pre className="w-full p-4 overflow-x-auto text-left text-xs bg-gray-50 rounded-lg">
-            <code>{stack}</code>
-          </pre>
+          <details className="w-full text-left">
+            <summary className="cursor-pointer text-sm text-gray-500 mb-2">Error Details</summary>
+            <pre className="w-full p-4 overflow-x-auto text-left text-xs bg-gray-50 rounded-lg">
+              <code>{stack}</code>
+            </pre>
+          </details>
         )}
       </div>
     </main>

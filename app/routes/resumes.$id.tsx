@@ -23,15 +23,9 @@ import type {
 } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Resume View" },
+  { title: "Career Autopilot | Resume View" },
   { name: "description", content: "View your resume" },
 ];
-
-const EDIT_ICON = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
-);
 
 export default function Resume() {
   const { id } = useParams();
@@ -70,11 +64,9 @@ export default function Resume() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch resume
         const resumeData: Resume = await api.resumes.get(id);
         setResume(resumeData);
 
-        // Get versions
         try {
           const versions: ResumeVersion[] = await api.resumes.getResumeVersions(id);
           const primaryVersion = versions.find((v) => v.isPrimary) || versions[0] || null;
@@ -83,7 +75,6 @@ export default function Resume() {
           }
         } catch {}
 
-        // Load profile for contact info
         try {
           const profileData = await api.profile.get();
           setUserProfile({
@@ -102,17 +93,16 @@ export default function Resume() {
           } as UserProfile);
         } catch {}
 
-        // Load generated content: prefer store (freshest) → resumeData.generatedContent → tailored resume API
         const storeContent = useResumeStore.getState().resumes[id]?.content;
         if (storeContent) {
           setGeneratedContent(storeContent);
           setIsGenerated(true);
-          setResumeTitle((storeContent as any).basics?.headline || resumeData.jobTitle || "");
+          setResumeTitle(resumeData.jobTitle || "");
         } else if (resumeData.generatedContent) {
           const gc = resumeData.generatedContent as GeneratedResume;
           setGeneratedContent(gc);
           setIsGenerated(true);
-          setResumeTitle((gc as any).basics?.headline || resumeData.jobTitle || "");
+          setResumeTitle(resumeData.jobTitle || "");
         } else if (resumeData.jobDescription) {
           try {
             const generated: TailoredResumeResult | null = await api.resumes.getTailoredResume(id).catch(() => null);
@@ -146,7 +136,6 @@ export default function Resume() {
           } catch {}
         }
 
-        // Load PDF/image URLs
         if (resumeData.imagePath) {
           try {
             const url = getUploadUrl(resumeData.imagePath);
@@ -160,13 +149,11 @@ export default function Resume() {
           } catch {}
         }
 
-        // Load feedback
         try {
           const fb: any = await api.resumes.analyze(id);
           setFeedback(normalizeFeedback(fb));
         } catch {}
 
-        // Load tip feedback
         try {
           const savedTipFeedback: any = await api.resumes.getTipFeedback(id);
           const feedbackMap: Record<string, boolean> = {};
@@ -178,7 +165,6 @@ export default function Resume() {
           setTipFeedback(feedbackMap);
         } catch {}
 
-        // Generate share URL
         try {
           const share: any = await api.resumes.generateShareLink(id);
           if (share.token) {
@@ -202,7 +188,6 @@ export default function Resume() {
     if (!displayContent) return;
     setIsExporting(true);
     try {
-      // Register Times serif font with all style variants
       pdfMake.fonts = {
         Times: {
           normal: "Times-Roman",
@@ -212,77 +197,17 @@ export default function Resume() {
         },
       };
       const docDefinition = buildPdfDefinition(displayContent, displayTitle || "Resume", userProfile);
-      pdfMake.createPdf(docDefinition).download(`${(displayTitle || "resume").replace(/[^a-zA-Z0-9]+/g, "-").replace(/-+$/, "")}.pdf`);
+      const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "");
+      const companyPart = resume?.companyName ? sanitize(resume.companyName) : "General";
+      const jobPart = resume?.jobTitle ? sanitize(resume.jobTitle) : "Resume";
+      const userPart = userProfile?.name ? sanitize(userProfile.name) : "User";
+      const versionPart = resumeVersion?.name ? `_${sanitize(resumeVersion.name)}` : "";
+      pdfMake.createPdf(docDefinition).download(`${companyPart}_${jobPart}_${userPart}${versionPart}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
     }
     setIsExporting(false);
   };
-
-  const handleShare = async () => {
-    if (!id) return;
-    try {
-      setSharingLoading(true);
-      const res = await api.resumes.generateShareLink(id);
-      setShareUrl(`${window.location.origin}/share/${res.shareToken}`);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    } catch (err) {
-      console.error("Share failed:", err);
-    } finally {
-      setSharingLoading(false);
-    }
-  };
-
-  const handleRate = async (tipId: string, helpful: boolean) => {
-    if (!id) return;
-    try {
-      await api.resumes.saveTipFeedback(id, { [tipId]: helpful ? "up" : "down" });
-      setTipFeedback((prev) => ({ ...prev, [tipId]: helpful }));
-    } catch (err) {
-      console.error("Failed to rate tip:", err);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <PageShell>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-10 w-10 border-3 border-primary-500 border-t-transparent" />
-        </div>
-      </PageShell>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageShell>
-        <div className="text-center py-12">
-          <div className="text-red-500 text-lg font-medium">{error}</div>
-          <Button variant="outline" onClick={() => navigate("/dashboard")} className="mt-4">
-            Back to Dashboard
-          </Button>
-        </div>
-      </PageShell>
-    );
-  }
-
-  if (!resume) {
-    return (
-      <PageShell>
-        <div className="text-center py-12">
-          <div className="text-gray-500">Resume not found</div>
-          <Button variant="outline" onClick={() => navigate("/dashboard")} className="mt-4">
-            Back to Dashboard
-          </Button>
-        </div>
-      </PageShell>
-    );
-  }
-
-  const displayContent = resumeVersion?.content || generatedContent;
-  const displayTitle = resumeVersion?.name || resumeTitle || resume.jobTitle;
-  const isAiGenerated = !resumeVersion && generatedContent;
 
   const handleShareClick = async () => {
     if (!id) return;
@@ -306,76 +231,171 @@ export default function Resume() {
     }
   };
 
+  const handleRate = async (tipId: string, helpful: boolean) => {
+    if (!id) return;
+    try {
+      await api.resumes.saveTipFeedback(id, { [tipId]: helpful ? "up" : "down" });
+      setTipFeedback((prev) => ({ ...prev, [tipId]: helpful }));
+    } catch (err) {
+      console.error("Failed to rate tip:", err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!confirm("Delete this resume? This cannot be undone.")) return;
+    try {
+      await api.resumes.delete(id);
+      toastSuccess("Deleted", "Resume deleted");
+      navigate("/resumes");
+    } catch (err) {
+      console.error("Failed to delete resume:", err);
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <PageShell>
+        <div className="space-y-6">
+          <div className="h-10 w-64 bg-gray-100 rounded-lg animate-pulse" />
+          <div className="grid lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-9">
+              <div className="h-[600px] bg-gray-100 rounded-xl animate-pulse" />
+            </div>
+            <div className="lg:col-span-3 space-y-4">
+              <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+              <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <PageShell>
+        <div className="text-center py-16">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <p className="text-base font-medium text-gray-900 mb-1">{error}</p>
+          <Button variant="secondary" onClick={() => navigate("/resumes")} className="mt-4">
+            Back to Resumes
+          </Button>
+        </div>
+      </PageShell>
+    );
+  }
+
+  // Not found
+  if (!resume) {
+    return (
+      <PageShell>
+        <div className="text-center py-16">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
+          <p className="text-base font-medium text-gray-900 mb-1">Resume not found</p>
+          <Button variant="secondary" onClick={() => navigate("/resumes")} className="mt-4">
+            Back to Resumes
+          </Button>
+        </div>
+      </PageShell>
+    );
+  }
+
+  const displayContent = resumeVersion?.content || generatedContent;
+  const jobTitle = resume.jobTitle || resumeTitle || resumeVersion?.name || "";
+  const displayTitle = jobTitle && resume?.companyName ? `${jobTitle} at ${resume.companyName}` : jobTitle;
+  const isAiGenerated = !resumeVersion && generatedContent;
+
   return (
     <PageShell maxWidth="2xl" padding="lg">
       {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{displayTitle}</h1>
-          <p className="mt-1 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
-            <span className="truncate">{resume.companyName ? `Target: ${resume.companyName}` : "General Resume"}</span>
-            {resumeVersion && <span className="shrink-0 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">Saved Version</span>}
-            {isAiGenerated && <span className="shrink-0 px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded-full">AI Generated</span>}
-          </p>
-        </div>
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold text-gray-900 truncate">{displayTitle}</h1>
+            <p className="mt-1 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
+              <span className="truncate">{resume.companyName ? `Target: ${resume.companyName}` : "General Resume"}</span>
+              {resumeVersion && (
+                <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-green-50 text-green-700 rounded-full ring-1 ring-green-200">
+                  Saved Version
+                </span>
+              )}
+              {isAiGenerated && (
+                <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-full ring-1 ring-purple-200">
+                  AI Generated
+                </span>
+              )}
+            </p>
+          </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          {resumeUrl && (
-            <Link
-              to={resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="View Original PDF"
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+          <div className="flex items-center gap-2 shrink-0">
+            {resumeUrl && (
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="View Original PDF"
+                className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </a>
+            )}
+
+            <Button variant="outline" onClick={handleExportPDF} disabled={isExporting} title="Download PDF" className="p-2">
+              {isExporting ? (
+                <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              )}
+            </Button>
+
+            <Button variant="outline" onClick={handleShareClick} disabled={sharingLoading} title="Share" className="p-2">
+              {shareCopied ? (
+                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
+            </Button>
+
+            <button
+              onClick={handleDelete}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+              title="Delete Resume"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
+            </button>
+
+            <Link
+              to={`/resumes/${id}/edit`}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Resume
             </Link>
-          )}
-
-          <Button
-            variant="outline"
-            onClick={handleExportPDF}
-            disabled={isExporting}
-            title="Download PDF"
-            className="p-2"
-          >
-            {isExporting ? (
-              <span className="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent" />
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            )}
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={handleShareClick}
-            disabled={sharingLoading}
-            title="Share"
-            className="p-2"
-          >
-            {shareCopied ? (
-              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            )}
-          </Button>
-
-          <Link
-            to={`/resumes/${id}/edit`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
-          >
-            {EDIT_ICON}
-            Edit Resume
-          </Link>
+          </div>
         </div>
       </div>
 
@@ -383,31 +403,36 @@ export default function Resume() {
       <div className="grid lg:grid-cols-12 gap-8">
         {/* Left: Resume Preview */}
         <div className="lg:col-span-9">
-          <div id="resume-preview" className="bg-white border border-gray-200 shadow-sm overflow-hidden p-8 md:p-10 lg:p-12">
+          <div id="resume-preview" className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden p-8 md:p-10 lg:p-12">
             {displayContent && (
               <ResumePreview
                 content={displayContent}
                 profile={userProfile}
                 resumeTitle={displayTitle || ""}
-                companyName={resume.companyName || undefined}
+                companyName={resume?.companyName}
               />
             )}
 
             {!displayContent && (
-              <div className="py-16 text-center text-gray-500">
-                <p className="text-sm">No resume content available</p>
+              <div className="py-16 text-center">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-gray-500">No resume content available</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Right Sidebar */}
-        <aside className="lg:col-span-3 space-y-6">
+        <aside className="lg:col-span-3 space-y-4">
           {/* ATS Analysis */}
           {feedback && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">ATS Analysis</h3>
-              <div className="space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">ATS Analysis</h3>
+              <div className="space-y-3">
                 <CategoryScore label="Overall" score={feedback.overallScore} showBar={false} />
                 <CategoryScore label="Keywords" score={feedback.keywordMatchScore ?? 0} showBar={false} />
                 <CategoryScore label="Format" score={feedback.formatScore ?? 0} showBar={false} />
@@ -416,8 +441,8 @@ export default function Resume() {
           )}
 
           {/* Resume Info */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resume Info</h3>
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Resume Info</h3>
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-gray-500 mb-0.5">Target Role</dt>
@@ -444,27 +469,27 @@ export default function Resume() {
 
           {/* Original File */}
           {resumeUrl && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Original File</h3>
-              <Link
-                to={resumeUrl}
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Original File</h3>
+              <a
+                href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
                 View Original {(resume.format || "").toUpperCase()}
-              </Link>
+              </a>
             </div>
           )}
 
           {/* Shared Feedback */}
           {(resume.sharedFeedbacks ?? []).length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
                 Feedback ({(resume.sharedFeedbacks ?? []).length})
               </h3>
               <div className="space-y-2">
@@ -477,7 +502,15 @@ export default function Resume() {
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-900 truncate">{fb.name}</span>
-                      {fb.rating && <span className="text-xs text-amber-500">{"★".repeat(fb.rating)}</span>}
+                      {fb.rating && (
+                        <span className="flex items-center gap-0.5 text-xs text-amber-500">
+                          {Array.from({ length: fb.rating }).map((_, i) => (
+                            <svg key={i} className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-gray-500 truncate mt-0.5">{fb.comment}</p>
                   </button>
@@ -489,7 +522,7 @@ export default function Resume() {
                   onClick={() => setShowAllFeedback(true)}
                   className="mt-3 w-full text-center text-xs text-primary-600 hover:text-primary-700 font-medium py-1"
                 >
-                  Show all {(resume.sharedFeedbacks ?? []).length} →
+                  Show all {(resume.sharedFeedbacks ?? []).length}
                 </button>
               )}
             </div>
@@ -499,7 +532,7 @@ export default function Resume() {
 
       {/* Detailed ATS Feedback */}
       {feedback && (feedback.strengths?.length || feedback.weaknesses?.length || feedback.suggestions?.length) ? (
-        <div id="ats-details" className="mt-12 animate-in fade-in duration-1000">
+        <div id="ats-details" className="mt-12">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">ATS Analysis Details</h2>
 
           <div className="grid gap-6 md:grid-cols-3 mb-8">
@@ -514,7 +547,7 @@ export default function Resume() {
               <ul className="space-y-2">
                 {(feedback.strengths ?? []).map((s: string, i: number) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     {s}
@@ -530,7 +563,7 @@ export default function Resume() {
               <ul className="space-y-2">
                 {(feedback.weaknesses ?? []).map((w: string, i: number) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                     {w}
@@ -545,33 +578,37 @@ export default function Resume() {
               <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Suggestions</h3>
               <ul className="space-y-3">
                 {(feedback.suggestions ?? []).map((s: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-700">{s}</p>
-                      <div className="mt-2 flex gap-2">
-                        <button
-                          onClick={() => handleRate(`${id}-suggestion-${i}`, true)}
-                          className={`text-xs px-2 py-1 rounded ${
-                            tipFeedback[`${id}-suggestion-${i}`] === true
-                              ? "bg-green-100 text-green-700"
-                              : "bg-white text-gray-600 hover:bg-gray-100"
-                          }`}
-                          disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
-                        >
-                          👍 Helpful
-                        </button>
-                        <button
-                          onClick={() => handleRate(`${id}-suggestion-${i}`, false)}
-                          className={`text-xs px-2 py-1 rounded ${
-                            tipFeedback[`${id}-suggestion-${i}`] === false
-                              ? "bg-red-100 text-red-700"
-                              : "bg-white text-gray-600 hover:bg-gray-100"
-                          }`}
-                          disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
-                        >
-                          👎 Not Helpful
-                        </button>
-                      </div>
+                  <li key={i} className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-700">{s}</p>
+                    <div className="mt-2.5 flex gap-2">
+                      <button
+                        onClick={() => handleRate(`${id}-suggestion-${i}`, true)}
+                        className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md transition-colors ${
+                          tipFeedback[`${id}-suggestion-${i}`] === true
+                            ? "bg-green-100 text-green-700"
+                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                        }`}
+                        disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                        Helpful
+                      </button>
+                      <button
+                        onClick={() => handleRate(`${id}-suggestion-${i}`, false)}
+                        className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md transition-colors ${
+                          tipFeedback[`${id}-suggestion-${i}`] === false
+                            ? "bg-red-100 text-red-700"
+                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                        }`}
+                        disabled={tipFeedback[`${id}-suggestion-${i}`] !== undefined}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                        </svg>
+                        Not helpful
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -593,7 +630,20 @@ export default function Resume() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-gray-900">{fb.name}</span>
-                {fb.rating && <span className="text-xs text-amber-500">{"★".repeat(fb.rating)}{"☆".repeat(5 - fb.rating)}</span>}
+                {fb.rating && (
+                  <span className="flex items-center gap-0.5 text-xs text-amber-500">
+                    {Array.from({ length: fb.rating }).map((_, i) => (
+                      <svg key={i} className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                    {Array.from({ length: 5 - fb.rating }).map((_, i) => (
+                      <svg key={`empty-${i}`} className="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </span>
+                )}
                 <span className="text-xs text-gray-400 ml-auto">{new Date(fb.createdAt).toLocaleDateString()}</span>
               </div>
               <p className="text-sm text-gray-600 line-clamp-2">{fb.comment}</p>
@@ -615,7 +665,18 @@ export default function Resume() {
                 <p className="text-xs text-gray-500">{new Date(selectedFeedback.createdAt).toLocaleDateString()}</p>
               </div>
               {selectedFeedback.rating && (
-                <span className="ml-auto text-amber-500 text-lg">{"★".repeat(selectedFeedback.rating)}{"☆".repeat(5 - selectedFeedback.rating)}</span>
+                <span className="ml-auto flex items-center gap-0.5 text-amber-500">
+                  {Array.from({ length: selectedFeedback.rating }).map((_, i) => (
+                    <svg key={i} className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                  {Array.from({ length: 5 - selectedFeedback.rating }).map((_, i) => (
+                    <svg key={`empty-${i}`} className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </span>
               )}
             </div>
             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedFeedback.comment}</p>
@@ -648,23 +709,20 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
   const references = content.references || [];
   const customSections = content.customSections || [];
 
-  // Matching HTML: font-[Georgia,Times,serif] → Times (serif built-in)
   const F = "Times";
-  // HTML CSS px → PDF pt: multiply by 0.75, but pdfmake renders slightly smaller so we nudge up
-  const NAME = 17;            // HTML 22px
-  const HL = 9;               // HTML 11px
-  const CONTACT = 8;          // HTML 10px
-  const SECTION = 10;         // HTML 13px
-  const BODY = 9;             // HTML 11px
-  const ITEM_TITLE = 10;      // HTML 12px
-  const DATE = 8;             // HTML 10px
-  const SMALL = 8;            // HTML 10px (technologies etc.)
+  const NAME = 17;
+  const HL = 9;
+  const CONTACT = 8;
+  const SECTION = 10;
+  const BODY = 9;
+  const ITEM_TITLE = 10;
+  const DATE = 8;
+  const SMALL = 8;
 
-  // Tailwind gray scale colors matching ResumePreview.tsx
-  const C800 = "#1f2937";     // text-gray-800
-  const C700 = "#374151";     // text-gray-700
-  const C600 = "#4b5563";     // text-gray-600
-  const C500 = "#6b7280";     // text-gray-500
+  const C800 = "#1f2937";
+  const C700 = "#374151";
+  const C600 = "#4b5563";
+  const C500 = "#6b7280";
 
   const fmtDate = (d: string) => {
     if (!d) return "";
@@ -681,8 +739,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     return `${start} – ${end}`;
   };
 
-  // Section heading matching HTML SectionHeading:
-  // text-[13px] font-bold text-black uppercase tracking-wide border-b border-black pb-1 mb-3 mt-5
   const section = (text: string): any => ({
     table: {
       widths: ["*"],
@@ -698,7 +754,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
 
   const body: any[] = [];
 
-  // ── Name ──
   body.push({
     text: name.toUpperCase(),
     fontSize: NAME,
@@ -709,7 +764,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     margin: [0, 0, 0, 2],
   });
 
-  // ── Headline ──
   if (headline) {
     body.push({
       text: headline,
@@ -721,7 +775,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     });
   }
 
-  // ── Contact line ──
   const contactItems: Array<{ text: string; link?: string }> = [];
   if (location) contactItems.push({ text: location });
   if (phone) contactItems.push({ text: phone, link: `tel:${phone}` });
@@ -743,13 +796,11 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     body.push({ text: contactText, alignment: "center", margin: [0, 0, 0, 10] } as any);
   }
 
-  // ── Summary ──
   if (summary) {
     body.push(section("Professional Summary"));
     body.push({ text: summary, fontSize: BODY, font: F, lineHeight: 1.6, color: C800, margin: [0, 0, 0, 4] });
   }
 
-  // ── Experience ──
   if (experience.length) {
     body.push(section("Professional Experience"));
     for (const exp of experience) {
@@ -794,7 +845,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Education ──
   if (education.length) {
     body.push(section("Education"));
     for (const edu of education) {
@@ -813,7 +863,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
         margin: [0, 4, 0, 2],
       });
 
-      // Match ResumePreview: stack details vertically (each on own line)
       if (edu.gpa) {
         body.push({ text: `GPA: ${edu.gpa}`, fontSize: BODY, font: F, color: C600, margin: [8, 0, 0, 1] });
       }
@@ -826,10 +875,8 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Skills ──
   if (skills.length) {
     body.push(section("Skills"));
-    // Match ResumePreview: flat comma-separated list for string[], categorized for ResumeSkill[]
     if (skills.length > 0 && typeof skills[0] === "string") {
       body.push({
         text: skills.join(", "),
@@ -860,7 +907,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Projects ──
   if (projects.length) {
     body.push(section("Projects"));
     for (const proj of projects) {
@@ -904,7 +950,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Certifications ──
   if (certifications.length) {
     body.push(section("Certifications"));
     for (const cert of certifications) {
@@ -922,7 +967,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Languages ──
   if (languages.length) {
     body.push(section("Languages"));
     body.push({
@@ -934,7 +978,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     });
   }
 
-  // ── Awards ──
   if (awards.length) {
     body.push(section("Awards & Honors"));
     for (const award of awards) {
@@ -952,12 +995,11 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Publications ──
   if (publications.length) {
     body.push(section("Publications"));
     for (const pub of publications) {
       const titleParts: any[] = [
-        { text: `“${pub.title}”`, fontSize: BODY, italics: true, font: F, color: C800 },
+        { text: `\u201c${pub.title}\u201d`, fontSize: BODY, italics: true, font: F, color: C800 },
       ];
       if (pub.publisher) titleParts.push({ text: ` — ${pub.publisher}`, fontSize: BODY, font: F, color: C600 });
       body.push({
@@ -970,7 +1012,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Volunteer ──
   if (volunteer.length) {
     body.push(section("Volunteer Experience"));
     for (const vol of volunteer) {
@@ -1003,7 +1044,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── References ──
   if (references.length) {
     body.push(section("References"));
     for (const ref of references) {
@@ -1015,7 +1055,6 @@ function buildPdfDefinition(content: GeneratedResume, title: string, profile: Us
     }
   }
 
-  // ── Custom Sections ──
   if (customSections.length) {
     for (const cs of customSections) {
       body.push(section(cs.title || "Custom Section"));

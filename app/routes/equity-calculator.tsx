@@ -6,7 +6,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Select, Card, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Equity & RSU Calculator" },
+  { title: "Career Autopilot | Equity & RSU Calculator" },
   { name: "description", content: "Calculate equity value with vesting schedules and tax implications" },
 ];
 

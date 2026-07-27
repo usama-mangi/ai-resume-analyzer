@@ -62,7 +62,7 @@ export class ResumesController {
   @Post('generate')
   async generateFromProfile(
     @Request() req,
-    @Body() body: { targetRole?: string; jobDescription?: string },
+    @Body() body: { targetRole?: string; jobDescription?: string; companyName?: string },
   ) {
     return this.resumesService.generateFromProfile(req.user.userId, body);
   }

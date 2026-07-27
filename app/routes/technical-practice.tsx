@@ -7,7 +7,7 @@ import { PageShell, PageHeader, Button, Input, Textarea, Card, ScoreBadge, Selec
 import type { TechnicalAssessment } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Technical Practice" },
+  { title: "Career Autopilot | Technical Practice" },
   { name: "description", content: "Coding challenges, system design prompts, and take-home simulations for target roles" },
 ];
 

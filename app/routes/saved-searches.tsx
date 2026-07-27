@@ -6,7 +6,7 @@ import { PageShell, PageHeader, Button, Card, Input, Select, useToastHelpers } f
 import { Skeleton } from "~/components/Skeleton";
 
 export const meta = () => [
-  { title: "Resumind | Saved Searches" },
+  { title: "Career Autopilot | Saved Searches" },
   { name: "description", content: "Manage your saved job searches and alerts" },
 ];
 

@@ -7,7 +7,7 @@ import type { Resume, MultiJdResult } from "types";
 import { PageShell, PageHeader, Button, Input, Textarea, ScoreBadge, ScoreCell, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Multi-JD Comparison" },
+  { title: "Career Autopilot | Multi-JD Comparison" },
   { name: "description", content: "Compare your resume against multiple job descriptions side by side" },
 ];
 
@@ -227,7 +227,7 @@ export default function MultiJd() {
         <div className="w-full max-w-6xl flex flex-col gap-6 animate-in fade-in duration-1000">
           <div className="flex flex-row gap-3 justify-end">
             <Link
-              to={`/resume/${id}`}
+              to={`/resumes/${id}`}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

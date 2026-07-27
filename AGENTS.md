@@ -27,41 +27,41 @@ A full-stack AI-powered career platform that supports the complete job applicati
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Frontend (React Router 7)                │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │  Routes     │  │ Components  │  │ Hooks / Lib / State     │ │
-│  │ (loaders/   │  │ (UI, forms, │  │ (Zustand, API clients,  │ │
-│  │  actions)   │  │  charts)    │  │  auth helpers)          │ │
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘ │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │  Routes     │  │ Components  │  │ Hooks / Lib / State     │  │
+│  │ (loaders/   │  │ (UI, forms, │  │ (Zustand, API clients,  │  │
+│  │  actions)   │  │  charts)    │  │  auth helpers)          │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ REST API (prefix: /api)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Backend (NestJS on Bun)                    │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐  │
-│  │ Auth       │ │ Jobs       │ │ AI         │ │ Prisma      │  │
-│  │ (Better    │ │ (Search,   │ │ (OpenAI    │ │ (PostgreSQL │  │
-│  │  Auth)     │ │  Match,    │ │  wrapper,   │ │  ORM)     │  │
-│  │            │ │  Alerts)   │ │  Prompts)  │ │             │  │
-│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐  │
-│  │ Resumes    │ │ Application│ │ Interview  │ │ Offer       │  │
-│  │ (Upload,   │ │ Tracker    │ │ Prep/Process│ │ Negotiation │  │
-│  │  Parse,    │ │ (Kanban,   │ │ (Mock,     │ │ (Compare,   │  │
-│  │  Generate) │ │  Analytics)│ │  Notes)    │ │  Salary,    │  │
-│  └────────────┘ └────────────┘ └────────────┘ │  Equity)    │  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ └─────────────┘  │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐   │
+│  │ Auth       │ │ Jobs       │ │ AI         │ │ Prisma      │   │
+│  │ (Better    │ │ (Search,   │ │ (OpenAI    │ │ (PostgreSQL │   │
+│  │  Auth)     │ │  Match,    │ │  wrapper,  │ │  ORM)       │   │
+│  │            │ │  Alerts)   │ │  Prompts)  │ │             │   │
+│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘   │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐   │
+│  │ Resumes    │ │ Application│ │ Interview  │ │ Offer       │   │
+│  │ (Upload,   │ │ Tracker    │ │ Prep       │ │ Negotiation │   │
+│  │  Parse,    │ │ (Kanban,   │ │ (Mock,     │ │ (Compare,   │   │
+│  │  Generate) │ │  Analytics)│ │  Notes)    │ │  Salary,    │   │
+│  └────────────┘ └────────────┘ └────────────┘ │  Equity)    │   │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ └─────────────┘   │
 │  │ Companies  │ │ Portfolio  │ │ References │                   │
 │  │ (Research, │ │ (Projects) │ │ (Manager)  │                   │
 │  │  Deep-dive)│ │            │ │            │                   │
 │  └────────────┘ └────────────┘ └────────────┘                   │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐  │
-│  │ Deadlines  │ │ Cover      │ │ LinkedIn   │ │ Extension   │  │
-│  │ (Calendar) │ │ Letters    │ │ (Profile)  │ │ (Autofill)  │  │
-│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐  │
-│  │ Post-      │ │ User/      │ │ Redis/     │ │ Rate        │  │
-│  │ Onboarding │ │ Profile    │ │ BullMQ     │ │ Limiter     │  │
-│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘  │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐   │
+│  │ Deadlines  │ │ Cover      │ │ LinkedIn   │ │ Extension   │   │
+│  │ (Calendar) │ │ Letters    │ │ (Profile)  │ │ (Autofill)  │   │
+│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘   │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌─────────────┐   │
+│  │ Post-      │ │ User/      │ │ Redis/     │ │ Rate        │   │
+│  │ Onboarding │ │ Profile    │ │ BullMQ     │ │ Limiter     │   │
+│  └────────────┘ └────────────┘ └────────────┘ └─────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

@@ -332,6 +332,7 @@ export interface ResumeVersionUpdateRequest {
 export interface ResumeGenerateRequest {
   targetRole?: string;
   jobDescription?: string;
+  companyName?: string;
 }
 
 export interface ResumeTailorRequest {

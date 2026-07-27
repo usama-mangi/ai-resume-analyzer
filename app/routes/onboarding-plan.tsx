@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, useToastHelpers, Select } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | 30-60-90 Day Plan Builder" },
+  { title: "Career Autopilot | 30-60-90 Day Plan Builder" },
   { name: "description", content: "Create a structured 30-60-90 day plan for your new role" },
 ];
 

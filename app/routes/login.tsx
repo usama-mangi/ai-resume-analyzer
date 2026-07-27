@@ -4,7 +4,7 @@ import { signIn, useSession } from "~/lib/auth-store";
 import { PageShell, PageHeader, Button, Input, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Login" },
+  { title: "Career Autopilot | Login" },
   { name: "description", content: "Log into your account" },
 ];
 

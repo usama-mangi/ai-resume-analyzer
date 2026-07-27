@@ -31,11 +31,11 @@ export function PageShell({
   padding = "md",
 }: PageShellProps) {
   return (
-    <main className={cn("min-h-screen bg-gray-50", className)}>
+    <div className={cn("min-h-screen bg-gray-50", className)}>
       <div className={cn("mx-auto w-full", maxWidthStyles[maxWidth], paddingStyles[padding])}>
         <div className="py-8">{children}</div>
       </div>
-    </main>
+    </div>
   );
 }
 

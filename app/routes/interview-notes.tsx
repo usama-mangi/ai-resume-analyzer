@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Interview Notes" },
+  { title: "Career Autopilot | Interview Notes" },
   { name: "description", content: "Structured interview notes with questions, answers, and ratings" },
 ];
 

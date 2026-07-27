@@ -77,9 +77,9 @@ export class JobsController {
   @Post('bookmarked')
   async checkBookmarked(
     @Request() req,
-    @Body() body: { ids: string[] },
+    @Body() body: { ids?: string[]; jobIds?: string[] },
   ) {
-    return this.jobsService.checkBookmarked(req.user.userId, body.ids);
+    return this.jobsService.checkBookmarked(req.user.userId, body.ids ?? body.jobIds ?? []);
   }
 
   @Post('clear')

@@ -6,7 +6,7 @@ import type { Resume } from "types";
 import { PageShell, PageHeader, Button, Input, Textarea, useToastHelpers, Modal } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Cover Letter" },
+  { title: "Career Autopilot | Cover Letter" },
   { name: "description", content: "Generate a tailored cover letter based on your resume analysis" },
 ];
 
@@ -196,7 +196,7 @@ export default function CoverLetter() {
               </svg>
               {copied ? "Copied!" : "Copy to Clipboard"}
             </Button>
-            <Link to={`/resume/${id}`} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <Link to={`/resumes/${id}`} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>

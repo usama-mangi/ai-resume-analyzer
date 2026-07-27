@@ -6,7 +6,7 @@ import type { Resume } from "types";
 import { PageShell, PageHeader, Button, Textarea, Input, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Tailored Resume Builder" },
+  { title: "Career Autopilot | Tailored Resume Builder" },
   { name: "description", content: "AI-powered resume customization for specific job roles" },
 ];
 
@@ -69,9 +69,9 @@ export default function TailoredResume() {
       // Navigate to the NEW tailored resume detail page
       const newResumeId = result.newResumeId;
       if (newResumeId) {
-        navigate(`/resume/${newResumeId}`);
+        navigate(`/resumes/${newResumeId}`);
       } else {
-        navigate(`/resume/${id}`);
+        navigate(`/resumes/${id}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");

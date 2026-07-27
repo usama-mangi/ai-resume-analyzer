@@ -151,3 +151,108 @@ export function parseAIResponse<T = unknown>(text: string): T {
     `AI response was not valid JSON. Raw response:\n\n${preview}`,
   );
 }
+
+/**
+ * Truncates text to a maximum length with optional suffix
+ */
+export function truncate(text: string, maxLength: number, suffix = '…'): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - suffix.length) + suffix;
+}
+
+/**
+ * Truncates text from the middle, preserving start and end
+ */
+export function truncateMiddle(text: string, maxLength: number, separator = '…'): string {
+  if (text.length <= maxLength) return text;
+  const startLength = Math.floor((maxLength - separator.length) / 2);
+  const endLength = maxLength - separator.length - startLength;
+  return text.slice(0, startLength) + separator + text.slice(-endLength);
+}
+
+/**
+ * Clamps a number between min and max
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ */
+export function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Debounce function
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+}
+
+/**
+ * Throttle function
+ */
+export function throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle = false;
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      fn(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+/**
+ * Safe parseInt with fallback
+ */
+export function safeParseInt(value: string | number | undefined, fallback = 0): number {
+  if (value === undefined || value === null || value === '') return fallback;
+  const parsed = typeof value === 'string' ? parseInt(value, 10) : value;
+  return isNaN(parsed) ? fallback : parsed;
+}
+
+/**
+ * Safe parseFloat with fallback
+ */
+export function safeParseFloat(value: string | number | undefined, fallback = 0): number {
+  if (value === undefined || value === null || value === '') return fallback;
+  const parsed = typeof value === 'string' ? parseFloat(value) : value;
+  return isNaN(parsed) ? fallback : parsed;
+}
+
+/**
+ * Format bytes to human readable
+ */
+export function formatBytes(bytes: number, decimals = 2): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
+ * Get initials from name
+ */
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}

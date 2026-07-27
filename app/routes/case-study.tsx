@@ -6,7 +6,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Case Study Builder" },
+  { title: "Career Autopilot | Case Study Builder" },
   { name: "description", content: "Build presentation-ready case studies with AI assistance for interview rounds" },
 ];
 

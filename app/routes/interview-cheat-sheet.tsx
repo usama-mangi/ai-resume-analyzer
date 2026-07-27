@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Interview Cheat Sheet" },
+  { title: "Career Autopilot | Interview Cheat Sheet" },
   { name: "description", content: "One-page interview prep: talking points, questions to ask, salary range, red flags" },
 ];
 

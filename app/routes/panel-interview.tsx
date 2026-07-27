@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers, ScoreBadge } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Panel Interview Coordinator" },
+  { title: "Career Autopilot | Panel Interview Coordinator" },
   { name: "description", content: "Manage multi-interviewer schedules, collect feedback, and consolidate panel interview results" },
 ];
 

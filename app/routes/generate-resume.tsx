@@ -6,7 +6,7 @@ import { PageShell, PageHeader, Button, Input, Textarea, Card, useToastHelpers, 
 import type { UserProfile, ProfileCompletion } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Generate Resume" },
+  { title: "Career Autopilot | Generate Resume" },
 ];
 
 export default function GenerateResumePage() {
@@ -66,9 +66,10 @@ export default function GenerateResumePage() {
       const result = await api.resumes.generate({
         targetRole: targetRole || undefined,
         jobDescription: jobDescription || undefined,
+        companyName: companyName || undefined,
       });
       toastSuccess("Resume generated", "Your resume has been created from your profile");
-      navigate(`/resume/${result.id}`);
+      navigate(`/resumes/${result.id}`);
     } catch (err) {
       toastError("Generation failed", err instanceof Error ? err.message : "Unknown error");
     }

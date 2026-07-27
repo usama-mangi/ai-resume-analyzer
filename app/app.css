@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif,
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Primary palette */
@@ -25,12 +25,32 @@
   /* Semantic accents */
   --color-success: #059669;
   --color-success-light: #d1fae5;
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-500: #059669;
+  --color-success-600: #047857;
+  --color-success-700: #065f46;
   --color-warning: #d97706;
   --color-warning-light: #fef3c7;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #d97706;
+  --color-warning-600: #b45309;
+  --color-warning-700: #92400e;
   --color-danger: #dc2626;
   --color-danger-light: #fee2e2;
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #dc2626;
+  --color-danger-600: #b91c1c;
+  --color-danger-700: #991b1b;
   --color-info: #0891b2;
   --color-info-light: #cffafe;
+  --color-info-50: #f0f9ff;
+  --color-info-100: #e0f2fe;
+  --color-info-500: #0891b2;
+  --color-info-600: #0e7490;
+  --color-info-700: #0c5c72;
 
   /* Badge colors */
   --color-badge-green: #d1fae5;
@@ -107,7 +127,7 @@ label {
   }
 
   .stat-card-icon {
-    @apply size-10 rounded-lg bg-primary-50 flex items-center justify-center shrink-0;
+    @apply size-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0;
   }
 
   .stat-card-value {
@@ -196,10 +216,10 @@ label {
       border border-gray-200 max-w-sm animate-in slide-in-from-right-5 fade-in duration-200;
   }
 
-  .toast-success { @apply border-l-4 border-l-success; }
-  .toast-error { @apply border-l-4 border-l-danger; }
-  .toast-warning { @apply border-l-4 border-l-warning; }
-  .toast-info { @apply border-l-4 border-l-info; }
+  .toast-success { @apply border-t-3 border-t-success; }
+  .toast-error { @apply border-t-3 border-t-danger; }
+  .toast-warning { @apply border-t-3 border-t-warning; }
+  .toast-info { @apply border-t-3 border-t-info; }
 
   /* Score bar */
   .score-bar {
@@ -215,11 +235,7 @@ label {
   .score-bar-red { background: linear-gradient(90deg, #dc2626, #f59e0b); }
   .score-bar-blue { background: linear-gradient(90deg, #2563eb, #7c3aed); }
 
-  /* Gradient utility */
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-primary-600;
-  }
-
+  /* Gradient utility — removed (decorative) */
   .gradient-border {
     @apply bg-gradient-to-b from-primary-50 to-primary-100/50 p-4 rounded-xl;
   }

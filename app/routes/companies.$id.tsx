@@ -14,7 +14,7 @@ interface SalaryRange {
 }
 
 export const meta = () => [
-  { title: "Resumind | Company Details" },
+  { title: "Career Autopilot | Company Details" },
   { name: "description", content: "View company details, jobs, and insights" },
 ];
 

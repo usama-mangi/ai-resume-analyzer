@@ -7,7 +7,7 @@ import type { OfferItem } from "types";
 import { PageShell, PageHeader, Button, Input, Textarea, Select, useToastHelpers, Modal, ModalFooter, ScoreBadge, Card, ScoreCell } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Decision Framework" },
+  { title: "Career Autopilot | Decision Framework" },
   { name: "description", content: "Weighted decision matrix for comparing job offers" },
 ];
 

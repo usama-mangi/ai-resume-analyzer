@@ -89,7 +89,7 @@ export const Navbar = () => {
       <nav className="sticky top-0 z-50 h-16 bg-white border-b border-gray-200">
         <div className="max-w-[1200px] mx-auto h-full px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gradient">Resumind</span>
+            <span className="text-xl font-bold text-gray-900">Career Autopilot</span>
           </Link>
           <div className="flex items-center justify-center w-full">
             <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -104,7 +104,7 @@ export const Navbar = () => {
       <div className="max-w-[1400px] mx-auto h-full px-6 flex items-center justify-between">
         {/* Logo - links to dashboard for auth, landing for non-auth */}
         <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-xl font-bold text-gradient">Resumind</span>
+          <span className="text-xl font-bold text-gray-900">Career Autopilot</span>
         </Link>
 
         {/* Primary Navigation - Desktop */}

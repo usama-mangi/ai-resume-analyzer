@@ -7,7 +7,7 @@ import { PageShell, PageHeader, Button, Card, useToastHelpers } from "~/componen
 import type { InterviewPerformanceAnalytics, InterviewNote } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Interview Analytics" },
+  { title: "Career Autopilot | Interview Analytics" },
   { name: "description", content: "Analyze your interview performance and track improvement over time" },
 ];
 

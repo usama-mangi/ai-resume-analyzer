@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Card, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Benefits Analyzer" },
+  { title: "Career Autopilot | Benefits Analyzer" },
   { name: "description", content: "Compare and analyze employee benefits packages against market standards" },
 ];
 

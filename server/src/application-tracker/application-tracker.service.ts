@@ -279,10 +279,6 @@ export class ApplicationTrackerService {
       include: { job: true, referral: true },
     });
 
-    const pipeline: Record<string, typeof applications> = {};
-    for (const status of VALID_STATUSES) {
-      pipeline[status] = applications.filter(a => a.status === status);
-    }
-    return pipeline;
+    return applications;
   }
 }

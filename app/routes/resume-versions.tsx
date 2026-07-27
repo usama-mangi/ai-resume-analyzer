@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import type { Resume, ResumeVersion } from "types";
 
 export const meta = () => [
-  { title: "Resumind | Resume Versions" },
+  { title: "Career Autopilot | Resume Versions" },
   {
     name: "description",
     content: "Manage multiple resume versions for different role types",

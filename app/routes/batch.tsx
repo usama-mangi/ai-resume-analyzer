@@ -8,7 +8,7 @@ import { PageShell, PageHeader, Button } from "~/components/ui";
 import BatchComparison from "~/components/BatchComparison";
 
 export const meta = () => [
-  { title: "Resumind | Batch Results" },
+  { title: "Career Autopilot | Batch Results" },
   { name: "description", content: "Batch resume comparison results" },
 ];
 

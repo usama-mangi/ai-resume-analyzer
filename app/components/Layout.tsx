@@ -2,7 +2,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { useSession } from "~/lib/auth-store";
 import { api } from "~/lib/api";
-import { Navbar } from "./Navbar";
+import { Sidebar } from "./Sidebar";
 import { ToastProvider } from "./Toast";
 
 export default function Layout() {
@@ -11,6 +11,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [checking, setChecking] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (isPending) return;
@@ -19,13 +20,11 @@ export default function Layout() {
       return;
     }
 
-    // Skip onboarding check for /onboarding route
     if (location.pathname === "/onboarding") {
       setChecking(false);
       return;
     }
 
-    // Check onboarding status
     api.profile.get()
       .then((data) => {
         if (data?.user && !data.user.onboardingCompleted) {
@@ -34,7 +33,6 @@ export default function Layout() {
         setChecking(false);
       })
       .catch(() => {
-        // If profile fetch fails, let the page handle auth
         setChecking(false);
       });
   }, [isPending, isAuthenticated, location.pathname, navigate]);
@@ -42,27 +40,20 @@ export default function Layout() {
   if (isPending || checking) {
     return (
       <ToastProvider>
-        <div className="page-shell">
-          <Navbar />
-          <main className="min-h-[calc(100vh-64px)]">
-            <div className="flex items-center justify-center py-20">
-              <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          </main>
+        <div className="min-h-screen bg-gray-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          </div>
         </div>
       </ToastProvider>
     );
   }
 
-  // If not authenticated, redirect to login (but don't render navbar)
   if (!isAuthenticated) {
     return (
       <ToastProvider>
-        <div className="page-shell">
-          <Navbar />
-          <main className="min-h-[calc(100vh-64px)]">
-            <Outlet />
-          </main>
+        <div className="min-h-screen bg-gray-50">
+          <Outlet />
         </div>
       </ToastProvider>
     );
@@ -70,9 +61,9 @@ export default function Layout() {
 
   return (
     <ToastProvider>
-      <div className="page-shell">
-        <Navbar />
-        <main className="min-h-[calc(100vh-64px)]">
+      <div className="min-h-screen bg-gray-50">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <main className={`min-h-screen transition-all duration-200 ${sidebarCollapsed ? "ml-[68px]" : "ml-[260px]"}`}>
           <Outlet />
         </main>
       </div>

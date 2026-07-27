@@ -78,7 +78,7 @@ export default function Upload() {
       const result = await api.resumes.create(apiFormData);
 
       setStatusText("Analysis complete, redirecting...");
-      navigate(`/resume/${result.id}`);
+      navigate(`/resumes/${result.id}`);
     } catch (err) {
       setStatusText(err instanceof Error ? err.message : "Error: Failed to process resume");
       toastError("Analysis failed", "Please try again");

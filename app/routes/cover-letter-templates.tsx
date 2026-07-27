@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Card, Input, Textarea, Modal, ModalFooter, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Cover Letter Templates" },
+  { title: "Career Autopilot | Cover Letter Templates" },
   { name: "description", content: "Manage your cover letter templates with variable substitution" },
 ];
 

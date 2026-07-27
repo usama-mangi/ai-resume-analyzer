@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Button as UIButton } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Company Research" },
+  { title: "Career Autopilot | Company Research" },
   { name: "description", content: "AI-generated company research briefing for interview preparation" },
 ];
 

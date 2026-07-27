@@ -3,11 +3,14 @@ import { api } from "~/lib/api";
 import { Link, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { Skeleton } from "~/components/Skeleton";
-import { PageShell, PageHeader, Button, Input, ScoreBadge, Card } from "~/components/ui";
+import { PageShell, PageHeader, Button, Input, Card } from "~/components/ui";
+import ResumeCard from "~/components/ResumeCard";
 import type { Resume, ApplicationStatus } from "types";
 
+type ResumeApplicationStatus = ApplicationStatus | "not_applied";
+
 export const meta = () => [
-  { title: "Resumind | Resumes" },
+  { title: "Career Autopilot | Resumes" },
   { name: "description", content: "Your resume library" },
 ];
 
@@ -49,13 +52,23 @@ export default function Resumes() {
     load();
   }, [isAuthenticated]);
 
-  async function handleStatusChange(id: string, status: ApplicationStatus) {
+  async function handleStatusChange(id: string, status: ResumeApplicationStatus) {
     setResumes((prev) => prev.map((r) => (r.id === id ? { ...r, applicationStatus: status } : r)));
     try { await api.resumes.updateStatus(id, status as any); } catch {}
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this resume? This cannot be undone.")) return;
+    try {
+      await api.resumes.delete(id);
+      setResumes((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error("Failed to delete resume:", err);
+    }
+  }
+
   const filtered = resumes
-    .filter((r) => activeFilter === "all" || (r.applicationStatus ?? "not_applied") === activeFilter)
+    .filter((r) => activeFilter === "all" || (r.applicationStatus ?? "draft") === activeFilter)
     .filter((r) => {
       if (!search) return true;
       const q = search.toLowerCase();
@@ -67,7 +80,7 @@ export default function Resumes() {
     });
 
   const visibleTabs = FILTER_TABS.filter(
-    (tab) => tab.value === "all" || resumes.some((r) => (r.applicationStatus ?? "not_applied") === tab.value),
+    (tab) => tab.value === "all" || resumes.some((r) => (r.applicationStatus ?? "draft") === tab.value),
   );
 
   if (loading) {
@@ -106,7 +119,7 @@ export default function Resumes() {
             {visibleTabs.map((tab) => {
               const count = tab.value === "all"
                 ? resumes.length
-                : resumes.filter((r) => (r.applicationStatus ?? "not_applied") === tab.value).length;
+                : resumes.filter((r) => (r.applicationStatus ?? "draft") === tab.value).length;
               return (
                 <button
                   key={tab.value}
@@ -129,22 +142,22 @@ export default function Resumes() {
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((resume) => (
-            <Link key={resume.id} to={`/resume/${resume.id}`} className="block">
-              <Card hover>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 truncate">{resume.jobTitle || "Untitled Role"}</h3>
-                    <p className="text-sm text-gray-500 truncate">{resume.companyName || "No company"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {resume.feedback?.ATS?.score && (
-                    <ScoreBadge score={resume.feedback.ATS.score} size="sm" showLabel={false} />
-                  )}
-                  <span className="text-xs text-gray-500">{formatDate(resume.createdAt)}</span>
-                </div>
-              </Card>
-            </Link>
+            <ResumeCard
+              key={resume.id}
+              resume={{
+                id: resume.id,
+                feedback: resume.feedback as any,
+                imagePath: resume.imagePath,
+                companyName: resume.companyName,
+                jobTitle: resume.jobTitle,
+                format: resume.format as any,
+                textPreview: resume.textPreview,
+                applicationStatus: resume.applicationStatus,
+                generatedContent: resume.generatedContent,
+              }}
+              onStatusChange={handleStatusChange}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       ) : (

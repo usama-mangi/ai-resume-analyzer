@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, ScoreCircle, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Profile" },
+  { title: "Career Autopilot | Profile" },
 ];
 
 export default function ProfilePage() {

@@ -2,237 +2,142 @@ import { Link } from "react-router";
 import { PageShell, Button } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Your Career Command Center" },
-  { name: "description", content: "Find jobs, tailor resumes, track applications, prep for interviews, and negotiate offers — all in one AI-powered platform." },
+  { title: "Career Autopilot | From Search to Offer" },
+  { name: "description", content: "AI-powered career platform that handles every step — job search, resume tailoring, interview prep, and offer negotiation. One system, not five tools." },
 ];
 
 export default function Landing() {
   return (
     <PageShell className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50 via-white to-white py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-6">
-              Your Career{" "}
-              <span className="text-gradient">Command Center</span>
+      {/* Nav */}
+      <nav className="flex items-center justify-between py-6 max-w-6xl mx-auto px-6 lg:px-8">
+        <Link to="/" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
+            <span className="text-white text-sm font-bold">CA</span>
+          </div>
+          <span className="text-lg font-bold text-gray-900 tracking-tight">Career Autopilot</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/login">
+            <Button variant="ghost" size="sm">Sign in</Button>
+          </Link>
+          <Link to="/register">
+            <Button size="sm">Get started</Button>
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-6 lg:px-8 pt-16 pb-24 lg:pt-24 lg:pb-32">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left — text + CTA */}
+          <div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-6">
+              Job search is broken.
+              <br />
+              <span className="text-gray-400">We fixed it.</span>
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-              From job search to offer negotiation — one AI-powered platform that handles
-              every step of your career journey. Find roles, tailor resumes, track
-              applications, prep for interviews, and close offers with confidence.
+            <p className="text-lg text-gray-500 leading-relaxed mb-8 max-w-lg">
+              One AI-powered platform from first search to signed offer.
+              No more juggling five tools, losing context between stages, or starting from scratch every application.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Link to="/login?redirect=/jobs">
-                <Button size="lg" className="w-full sm:w-auto px-8 py-3 text-lg">
-                  Start Job Search Free
-                </Button>
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <Link to="/register">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto px-8 py-3 text-lg">
-                  Create Free Account
+                <Button size="lg" className="w-full sm:w-auto px-6">
+                  Start free
+                </Button>
+              </Link>
+              <Link to="/jobs">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto px-6">
+                  Browse jobs
                 </Button>
               </Link>
             </div>
-            <p className="text-sm text-gray-500">
-              No credit card required · 14-day free trial · Cancel anytime
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Indicators */}
-      <section className="py-12 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-400 font-medium">
-            <span>Trusted by job seekers at</span>
-            <span className="font-bold text-gray-600">Google</span>
-            <span className="font-bold text-gray-600">Microsoft</span>
-            <span className="font-bold text-gray-600">Amazon</span>
-            <span className="font-bold text-gray-600">Meta</span>
-            <span className="font-bold text-gray-600">Netflix</span>
-            <span className="font-bold text-gray-600">Stripe</span>
-            <span className="font-bold text-gray-600">and 10,000+ more</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Pipeline - The Job Search Lifecycle */}
-      <section className="py-20 lg:py-28 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              The Complete Job Search Lifecycle
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Every tool you need, connected by AI. No more context switching between
-              job boards, resume builders, spreadsheets, and interview prep tools.
-            </p>
+            <p className="text-sm text-gray-400">No credit card required</p>
           </div>
 
-          {/* Pipeline Visualization */}
+          {/* Right — product mockup */}
           <div className="relative">
-            {/* Connecting line */}
-            <div className="hidden lg:block absolute top-10 left-10 right-10 h-0.5 bg-gradient-to-r from-primary-200 via-primary-400 to-primary-200" />
+            <div className="absolute inset-0 bg-primary-500/5 blur-3xl rounded-full" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-0 relative z-10">
-              {[
-                {
-                  icon: (
-                    <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  ),
-                  title: "Discover Jobs",
-                  desc: "Search across LinkedIn, Indeed, Glassdoor & company sites. AI matches you to roles.",
-                  color: "bg-blue-500",
-                  bg: "bg-blue-50",
-                  border: "border-blue-200",
-                },
-                {
-                  icon: (
-                    <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  ),
-                  title: "Tailor Resumes",
-                  desc: "AI injects keywords, reorders sections, and optimizes for ATS per job description.",
-                  color: "bg-purple-500",
-                  bg: "bg-purple-50",
-                  border: "border-purple-200",
-                },
-                {
-                  icon: (
-                    <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                  ),
-                  title: "Apply & Track",
-                  desc: "One-click apply, auto-fill forms, kanban pipeline, deadlines, reminders, analytics.",
-                  color: "bg-green-500",
-                  bg: "bg-green-50",
-                  border: "border-green-200",
-                },
-                {
-                  icon: (
-                    <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                  ),
-                  title: "Prep & Interview",
-                  desc: "Company briefings, mock interviews, STAR stories, cheat sheets, scheduling.",
-                  color: "bg-orange-500",
-                  bg: "bg-orange-50",
-                  border: "border-orange-200",
-                },
-                {
-                  icon: (
-                    <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  ),
-                  title: "Negotiate & Decide",
-                  desc: "Offer comparison, equity calculator, negotiation scripts, decision matrix, resignation letters.",
-                  color: "bg-emerald-500",
-                  bg: "bg-emerald-50",
-                  border: "border-emerald-200",
-                },
-              ].map((step, i) => (
-                <div key={i} className="relative flex flex-col items-center text-center px-4">
-                  {/* Step number / connector */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full flex items-center justify-center text-white {step.color} shadow-lg border-4 border-white z-20">
-                    <span className="text-2xl font-bold">{i + 1}</span>
-                  </div>
-                  <div className={`mt-24 p-6 rounded-2xl border {step.bg} {step.border} h-full flex flex-col`}>
-                    <div className={`p-3 rounded-xl {step.bg} {step.color} inline-flex mb-4`}>
-                      {step.icon}
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
-                    <p className="text-sm text-gray-600 flex-1">{step.desc}</p>
-                  </div>
+            <div className="relative bg-white rounded-2xl border border-gray-200 shadow-xl p-6 space-y-4">
+              {/* Top bar */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
                 </div>
-              ))}
+                <span className="text-xs text-gray-400 font-medium">Career Autopilot</span>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Applications", value: "24", change: "+6 this week" },
+                  { label: "Interviews", value: "7", change: "+2 scheduled" },
+                  { label: "Offers", value: "1", change: "Pending review" },
+                ].map((s) => (
+                  <div key={s.label} className="p-3 rounded-xl bg-gray-50">
+                    <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                    <p className="text-xs font-medium text-gray-500 mt-0.5">{s.label}</p>
+                    <p className="text-[10px] text-gray-400 mt-1">{s.change}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Job list */}
+              <div className="space-y-2">
+                {[
+                  { role: "Senior Frontend Engineer", company: "Stripe", match: 92, status: "Interview" },
+                  { role: "Staff Engineer", company: "Vercel", match: 87, status: "Applied" },
+                  { role: "Product Engineer", company: "Linear", match: 78, status: "Matched" },
+                ].map((j) => (
+                  <div key={j.role} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{j.role}</p>
+                      <p className="text-xs text-gray-400">{j.company}</p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        j.match >= 90 ? "bg-green-50 text-green-700" :
+                        j.match >= 80 ? "bg-blue-50 text-blue-700" :
+                        "bg-gray-100 text-gray-600"
+                      }`}>{j.match}%</span>
+                      <span className="text-xs text-gray-400 w-20 text-right">{j.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Key Features Grid */}
-      <section className="py-20 lg:py-28 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              AI-Powered Tools for Every Stage
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Purpose-built features that work together — not a collection of disjointed tools.
-            </p>
+      {/* Features — clean grid */}
+      <section className="py-20 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="max-w-lg mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Everything, connected</h2>
+            <p className="text-gray-500">Six stages. One AI thread. No context switching.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              {
-                title: "Multi-Source Job Search",
-                desc: "Aggregate listings from LinkedIn, Indeed, Glassdoor, JSearch, and company career pages. Save searches, get alerts.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              { title: "Job Search", desc: "Aggregate from LinkedIn, Indeed, Glassdoor. AI matches your profile to roles.", icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" },
+              { title: "Resume Builder", desc: "AI generates and tailors resumes per job. ATS scoring, keyword injection.", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+              { title: "Application Tracker", desc: "Kanban pipeline, communication log, referral tracking, analytics.", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+              { title: "Interview Prep", desc: "Company briefings, mock interviews, STAR coaching, cheat sheets.", icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
+              { title: "Offer Negotiation", desc: "Side-by-side comparison, equity calculator, salary coaching, scripts.", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" },
+              { title: "Onboarding Plans", desc: "30-60-90 day plans, manager alignment, network mapping, skill refresh.", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+            ].map((f) => (
+              <Link key={f.title} to="/login" className="block">
+                <div className="bg-white p-5 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all duration-200 h-full">
+                  <svg className="w-5 h-5 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={f.icon} />
                   </svg>
-                ),
-              },
-              {
-                title: "AI Job Matching",
-                desc: "Batch score your resume against 50+ jobs. See match % for skills, experience, keywords. Prioritize applications.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "ATS Resume Optimizer",
-                desc: "Upload resume + job description → get ATS score, missing keywords, section-by-section feedback, rewrite suggestions.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "Interview Simulator",
-                desc: "AI voice/text mock interviews with real-time feedback. STAR framework coaching. Technical & behavioral modes.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "Offer Comparison Matrix",
-                desc: "Side-by-side: base, equity, bonus, benefits, PTO, remote policy, growth path. Weighted decision framework.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "Application Autofill Extension",
-                desc: "Browser extension that fills Greenhouse, Lever, Workday, SuccessFactors forms from your profile in one click.",
-                icon: (
-                  <svg className="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                ),
-              },
-            ].map((feature, i) => (
-              <Link key={i} to="/login?redirect=/jobs" className="block">
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all duration-200 h-full">
-                  <div className="p-3 bg-primary-50 rounded-xl w-fit text-primary-500 mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">{f.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{f.desc}</p>
                 </div>
               </Link>
             ))}
@@ -240,73 +145,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 lg:py-28 bg-gray-900">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-            Ready to Take Control of Your Job Search?
-          </h2>
-          <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals who've landed roles at top companies using Resumind.
-            Start free — no credit card required.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto px-8 py-3 text-lg bg-primary-500 hover:bg-primary-600">
-                Start Free Job Search
-              </Button>
-            </Link>
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button variant="ghost" size="lg" className="w-full sm:w-auto px-8 py-3 text-lg text-white border-gray-700 hover:bg-gray-800">
-                Sign In
-              </Button>
-            </Link>
-          </div>
+      {/* CTA */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Ready to start?</h2>
+          <p className="text-gray-500 mb-6">Join professionals who landed roles at top companies.</p>
+          <Link to="/register">
+            <Button size="lg" className="px-8">Create free account</Button>
+          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/jobs" className="hover:text-primary-500">Job Search</Link></li>
-                <li><Link to="/resumes" className="hover:text-primary-500">Resume Builder</Link></li>
-                <li><Link to="/applications" className="hover:text-primary-500">Application Tracker</Link></li>
-                <li><Link to="/interview-prep" className="hover:text-primary-500">Interview Prep</Link></li>
-                <li><Link to="/offer-comparison" className="hover:text-primary-500">Offer Tools</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/blog" className="hover:text-primary-500">Blog</Link></li>
-                <li><Link to="/guides" className="hover:text-primary-500">Guides</Link></li>
-                <li><Link to="/templates" className="hover:text-primary-500">Templates</Link></li>
-                <li><Link to="/salary-data" className="hover:text-primary-500">Salary Data</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/about" className="hover:text-primary-500">About</Link></li>
-                <li><Link to="/careers" className="hover:text-primary-500">Careers</Link></li>
-                <li><Link to="/contact" className="hover:text-primary-500">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/privacy" className="hover:text-primary-500">Privacy</Link></li>
-                <li><Link to="/terms" className="hover:text-primary-500">Terms</Link></li>
-                <li><Link to="/security" className="hover:text-primary-500">Security</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-100 pt-8 text-center text-sm text-gray-500">
-            <p>© 2025 Resumind. All rights reserved.</p>
+      <footer className="border-t border-gray-100 py-8">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-sm text-gray-400">2025 Career Autopilot</span>
+          <div className="flex items-center gap-6 text-sm text-gray-400">
+            <Link to="/privacy" className="hover:text-gray-600 transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-gray-600 transition-colors">Terms</Link>
+            <Link to="/contact" className="hover:text-gray-600 transition-colors">Contact</Link>
           </div>
         </div>
       </footer>

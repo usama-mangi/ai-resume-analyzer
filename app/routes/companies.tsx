@@ -7,7 +7,7 @@ import { PageShell, PageHeader, Button, Card, Input } from "~/components/ui";
 import { Skeleton } from "~/components/Skeleton";
 
 export const meta = () => [
-  { title: "Resumind | Companies" },
+  { title: "Career Autopilot | Companies" },
   { name: "description", content: "Research companies before you apply" },
 ];
 

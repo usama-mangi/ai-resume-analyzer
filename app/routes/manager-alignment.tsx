@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { cn } from "~/lib/utils";
 
 export const meta = () => [
-  { title: "Resumind | Manager Alignment Tool" },
+  { title: "Career Autopilot | Manager Alignment Tool" },
   { name: "description", content: "Shared expectations document with success metrics, communication style, and meeting cadence" },
 ];
 

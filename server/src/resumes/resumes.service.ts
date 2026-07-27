@@ -145,6 +145,7 @@ export class ResumesService {
         imagePath: true,
         textPreview: true,
         feedback: true,
+        generatedContent: true,
         createdAt: true,
         updatedAt: true,
         applicationStatus: true,
@@ -236,7 +237,7 @@ export class ResumesService {
 
   async generateFromProfile(
     userId: string,
-    body: { targetRole?: string; jobDescription?: string },
+    body: { targetRole?: string; jobDescription?: string; companyName?: string },
   ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
@@ -387,7 +388,7 @@ export class ResumesService {
     const resume = await this.prisma.resume.create({
       data: {
         user: { connect: { id: userId } },
-        companyName: body.targetRole ? null : null,
+        companyName: body.companyName || null,
         jobTitle: body.targetRole || user.headline || 'Resume',
         jobDescription: body.jobDescription || null,
         fileName: `generated-${Date.now()}.txt`,

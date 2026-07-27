@@ -124,21 +124,10 @@ export const useJobsStore = create<JobsState>((set, get) => ({
 
   // Actions — data
   search: async () => {
-    set({ hasSearched: true, pagination: { ...get().pagination, page: 1 } });
-    await get().loadJobs();
-  },
-
-  goPage: async (page: number) => {
-    set({ pagination: { ...get().pagination, page } });
-    await get().loadJobs();
-  },
-
-  loadJobs: async (signal?: AbortSignal) => {
     const s = get();
-    if (!s.hasSearched) return;
-
-    set({ loadingJobs: true });
+    set({ hasSearched: true, loadingJobs: true, pagination: { ...s.pagination, page: 1 }, matchScores: {}, matchingJobs: [] });
     try {
+      // Hit JSearch API to fetch and save new jobs
       const data = await api.jobs.search({
         keywords: s.searchKeywords || undefined,
         location: s.searchLocation || undefined,
@@ -147,9 +136,70 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         experienceLevels: s.selectedExperienceLevels.length > 0 ? s.selectedExperienceLevels : undefined,
         jobFunctions: s.selectedJobFunctions.length > 0 ? s.selectedJobFunctions : undefined,
         sources: s.selectedSources.length > 0 ? s.selectedSources : undefined,
+        page: 1,
+        limit: s.pagination.limit,
+      });
+
+      let jobsWithBookmark = data.jobs;
+      try {
+        const validIds = data.jobs.map((j) => j.id).filter(Boolean);
+        const isBookmarked = validIds.length > 0 ? await api.jobs.isBookmarked(validIds) : {};
+        jobsWithBookmark = data.jobs.map((job) => ({
+          ...job,
+          isBookmarked: job.id ? (isBookmarked[job.id] || false) : false,
+        }));
+      } catch {
+        // Bookmark status is cosmetic
+      }
+
+      set({ jobs: jobsWithBookmark, pagination: data.pagination });
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.error('Failed to search jobs:', err);
+    }
+    set({ loadingJobs: false });
+  },
+
+  goPage: async (page: number) => {
+    const s = get();
+    set({ pagination: { ...s.pagination, page }, loadingJobs: true, matchScores: {}, matchingJobs: [] });
+    try {
+      // Load from DB for pagination (no re-fetching from JSearch)
+      const data = await api.jobs.list({
+        page,
+        limit: s.pagination.limit,
+      });
+
+      let jobsWithBookmark = data.jobs;
+      try {
+        const validIds = data.jobs.map((j) => j.id).filter(Boolean);
+        const isBookmarked = validIds.length > 0 ? await api.jobs.isBookmarked(validIds) : {};
+        jobsWithBookmark = data.jobs.map((job) => ({
+          ...job,
+          isBookmarked: job.id ? (isBookmarked[job.id] || false) : false,
+        }));
+      } catch {
+        // Bookmark status is cosmetic
+      }
+
+      set({ jobs: jobsWithBookmark, pagination: data.pagination });
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.error('Failed to load jobs page:', err);
+    }
+    set({ loadingJobs: false });
+  },
+
+  loadJobs: async (signal?: AbortSignal) => {
+    const s = get();
+    if (!s.hasSearched) return;
+
+    set({ loadingJobs: true });
+    try {
+      // Load from DB — search results are already persisted there
+      const data = await api.jobs.list({
         page: s.pagination.page,
         limit: s.pagination.limit,
-        signal,
       });
 
       // Fetch bookmark status (non-blocking — don't let failure prevent job display)

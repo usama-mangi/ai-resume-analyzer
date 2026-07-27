@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, useToastHelpers, ScoreBadge } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Behavioral Question Bank" },
+  { title: "Career Autopilot | Behavioral Question Bank" },
   { name: "description", content: "Curated behavioral questions with STAR framework templates per competency" },
 ];
 

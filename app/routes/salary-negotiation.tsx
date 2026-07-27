@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 import { PageShell, PageHeader, Button, Input, Textarea, Select, Card, Modal, ModalFooter, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Salary Negotiation Coach" },
+  { title: "Career Autopilot | Salary Negotiation Coach" },
   { name: "description", content: "AI-powered salary negotiation strategy with scripts and email templates" },
 ];
 

@@ -25,7 +25,7 @@ const ATS = ({
   score,
   suggestions,
   tipFeedback,
-  onRate,
+  onRate
 }: {
   score: number;
   suggestions: { type: "good" | "improve"; tip: string }[];

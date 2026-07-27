@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, Select, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Resignation Letter Generator" },
+  { title: "Career Autopilot | Resignation Letter Generator" },
   { name: "description", content: "Professional resignation letter templates with notice period, transition plan, and bridge-burning avoidance" },
 ];
 

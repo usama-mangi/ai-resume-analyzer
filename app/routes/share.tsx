@@ -7,7 +7,7 @@ import { normalizeFeedback } from "~/lib/utils";
 import { PageShell, Button, Input, Textarea, useToastHelpers, ScoreBadge, CategoryScore } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Shared Resume" },
+  { title: "Career Autopilot | Shared Resume" },
   { name: "description", content: "Shared resume preview" },
 ];
 
@@ -64,7 +64,7 @@ export default function Share() {
   return (
     <PageShell className="min-h-screen" maxWidth="2xl" padding="lg">
       <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
-        <Link to="/" className="font-bold text-xl text-gray-900 tracking-tight">Resumind</Link>
+        <Link to="/" className="font-bold text-xl text-gray-900 tracking-tight">Career Autopilot</Link>
         <span className="text-xs font-medium px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">Shared Resume</span>
       </header>
 
@@ -77,7 +77,7 @@ export default function Share() {
       {error && (
         <div className="flex flex-col items-center gap-6 py-24 text-center">
           <p className="text-xl text-gray-500">{error}</p>
-          <Link to="/"><Button>Go to Resumind</Button></Link>
+          <Link to="/"><Button>Go to Career Autopilot</Button></Link>
         </div>
       )}
 

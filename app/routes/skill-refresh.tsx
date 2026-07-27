@@ -5,7 +5,7 @@ import { api } from "~/lib/api";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, Modal, ModalFooter, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Skill Refresh Recommendations" },
+  { title: "Career Autopilot | Skill Refresh Recommendations" },
   { name: "description", content: "Pre-start learning path based on tech stack, domain, and tools" },
 ];
 

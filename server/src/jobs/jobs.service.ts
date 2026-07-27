@@ -150,6 +150,16 @@ export class JobsService {
     userId: string,
     params: JobSearchParams,
   ) {
+    // Normalize array fields — query/body may send a single string
+    const normalizeArray = (v: unknown): string[] =>
+      Array.isArray(v) ? v : v ? [String(v)] : [];
+
+    params.keywords = normalizeArray(params.keywords);
+    params.jobTypes = normalizeArray(params.jobTypes);
+    params.remoteTypes = normalizeArray(params.remoteTypes);
+    params.experienceLevels = normalizeArray(params.experienceLevels);
+    params.sources = normalizeArray(params.sources);
+
     // Rate limiting
     await this.checkRateLimit(userId);
 
@@ -170,8 +180,8 @@ export class JobsService {
 
     const externalJobs = await this.searchJobsJSearch(params);
 
-    // Deduplicate jobs
-    const uniqueExternalJobs = await this.deduplicateJobs(externalJobs);
+    // Deduplicate jobs within this response
+    const uniqueExternalJobs = this.deduplicateJobs(externalJobs);
 
     // Clean up any old records with Google search URLs as sourceUrl
     await this.prisma.job.deleteMany({
@@ -236,15 +246,19 @@ export class JobsService {
   }
 
   /**
-   * Deduplicate jobs by source URL using Redis set
+   * Deduplicate jobs within a single response by source URL.
+   * Per-user dedup is handled by upsertJob (userId + title + companyName).
    */
-  private async deduplicateJobs(jobs: ExternalJobPosting[]): Promise<ExternalJobPosting[]> {
+  private deduplicateJobs(jobs: ExternalJobPosting[]): ExternalJobPosting[] {
+    const seen = new Set<string>();
     const unique: ExternalJobPosting[] = [];
-    
+
     for (const job of jobs) {
-      const isDup = await this.redis.isDuplicateJob(job.sourceUrl);
-      if (!isDup) {
-        await this.redis.markJobAsSeen(job.sourceUrl);
+      if (job.sourceUrl && !seen.has(job.sourceUrl)) {
+        seen.add(job.sourceUrl);
+        unique.push(job);
+      } else if (!job.sourceUrl) {
+        // Jobs without a sourceUrl are always included (synthetic IDs)
         unique.push(job);
       } else {
         this.logger.debug(`Duplicate job skipped: ${job.sourceUrl}`);
@@ -770,7 +784,8 @@ export class JobsService {
       /**
        * Check bookmark status for multiple jobs
        */
-      async checkBookmarked(userId: string, ids: string[]): Promise<Record<string, boolean>> {
+      async checkBookmarked(userId: string, ids?: string[]): Promise<Record<string, boolean>> {
+        if (!ids || !Array.isArray(ids)) return {};
         const validIds = ids.filter((id): id is string => id != null && id !== '');
         if (validIds.length === 0) return {};
 

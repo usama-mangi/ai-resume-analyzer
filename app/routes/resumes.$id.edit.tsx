@@ -8,7 +8,7 @@ import type { GeneratedResume } from "types";
 import { PageShell, PageHeader, Button, Input, Textarea, Card, useToastHelpers } from "~/components/ui";
 
 export const meta = () => [
-  { title: "Resumind | Edit Resume" },
+  { title: "Career Autopilot | Edit Resume" },
 ];
 
 interface BulletEditorProps {
