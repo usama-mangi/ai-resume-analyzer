@@ -1,0 +1,47 @@
+{
+  "name": "ai-resume-analyzer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@react-router/node": "^7.7.0",
+    "@react-router/serve": "^7.7.0",
+    "@types/pdfmake": "^0.3.3",
+    "better-auth": "^1.6.23",
+    "clsx": "^2.1.1",
+    "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.14.0",
+    "isbot": "^5.1.27",
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.1.200",
+    "pdfmake": "^0.3.11",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
+    "react-router": "^7.7.0",
+    "tailwind-merge": "^3.3.1",
+    "tw-animate-css": "^1.3.5",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.7.0",
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/node": "^20",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
