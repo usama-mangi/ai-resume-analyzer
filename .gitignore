@@ -1,6 +1,5 @@
 .DS_Store
 node_modules/
-.env
 
 # React Router
 /client/node_modules/
@@ -14,3 +13,4 @@ node_modules/
 /server/uploads/
 /server/.env
 /server/server.log
+config.bat
